@@ -100,6 +100,36 @@ async def play(ctx, *, query: str):
         if not voice_client.is_playing():
             await play_next(ctx, voice_client, queues, bot)
 
+@bot.command(name='skip', help='Bỏ qua bài hát hiện tại')
+async def skip(ctx):
+    voice_client = ctx.voice_client
+    if voice_client is None or not voice_client.is_playing():
+        await ctx.send('Không có bài hát nào đang phát.')
+        return
+    voice_client.stop()
+    await ctx.send('Đã bỏ qua bài hát hiện tại.')
+    logging.info(f"Skipped current song in guild {ctx.guild.id}")
+
+@bot.command(name='pause', help='Tạm dừng bài hát đang phát')
+async def pause(ctx):
+    voice_client = ctx.voice_client
+    if voice_client is None or not voice_client.is_playing():
+        await ctx.send('Không có bài hát nào đang phát để tạm dừng.')
+        return
+    voice_client.pause()
+    await ctx.send('Đã tạm dừng bài hát.')
+    logging.info(f"Paused music in guild {ctx.guild.id}")
+
+@bot.command(name='resume', help='Tiếp tục phát bài hát đã tạm dừng')
+async def resume(ctx):
+    voice_client = ctx.voice_client
+    if voice_client is None or not voice_client.is_paused():
+        await ctx.send('Không có bài hát nào đang tạm dừng để tiếp tục.')
+        return
+    voice_client.resume()
+    await ctx.send('Đã tiếp tục phát bài hát.')
+    logging.info(f"Resumed music in guild {ctx.guild.id}")
+
 @bot.command(name='queue', help='Hiển thị danh sách queue nhạc hiện tại')
 async def show_queue(ctx):
     guild_id = str(ctx.guild.id)

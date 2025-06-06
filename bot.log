@@ -232,3 +232,35 @@ NameError: name 'asyncio' is not defined. Did you forget to import 'asyncio'
 2025-06-06 13:47:59,017 - INFO - No songs left in queue for guild 1379636309768798208
 2025-06-06 13:47:59,017 - INFO - ffmpeg process 13336 successfully terminated with return code of 0.
 2025-06-06 13:50:40,287 - INFO - The voice handshake is being terminated for Channel ID 1379665146271764573 (Guild ID 1379636309768798208)
+2025-06-06 13:55:06,945 - INFO - logging in using static token
+2025-06-06 13:55:09,488 - INFO - Shard ID None has connected to Gateway (Session ID: 2d9333dee3c9b2b3097617b8cd1233bc).
+2025-06-06 13:55:11,497 - INFO - Bot started, databases initialized, and queues loaded
+2025-06-06 14:09:44,107 - INFO - logging in using static token
+2025-06-06 14:09:45,658 - INFO - Shard ID None has connected to Gateway (Session ID: 65b9cba6ceb1228a34254c1731c19138).
+2025-06-06 14:09:47,679 - INFO - Bot started, databases initialized, and queues loaded
+2025-06-06 14:10:56,233 - INFO - Connecting to voice...
+2025-06-06 14:10:56,233 - INFO - Starting voice handshake... (connection attempt 1)
+2025-06-06 14:10:56,687 - INFO - Voice handshake complete. Endpoint found: hongkong11039.discord.media
+2025-06-06 14:10:56,940 - INFO - Voice connection complete.
+2025-06-06 14:11:02,387 - INFO - Added to queue: Touhou Luna Nights BGM - Extra Stage - Scarlet Beyond a Crimson Dream (duration: 156s) for guild 1379636309768798208
+2025-06-06 14:11:02,830 - INFO - Playing: Touhou Luna Nights BGM - Extra Stage - Scarlet Beyond a Crimson Dream (duration: 156s) for guild 1379636309768798208
+2025-06-06 14:11:37,240 - INFO - Added to queue: DDC Stage 5 Boss - Seija Kijin's Theme - Reverse Ideology (duration: 257s) for guild 1379636309768798208
+2025-06-06 14:11:42,287 - INFO - Finished playing Touhou Luna Nights BGM - Extra Stage - Scarlet Beyond a Crimson Dream (duration: 156s) in guild 1379636309768798208
+2025-06-06 14:11:42,287 - INFO - ffmpeg process 13524 has not terminated. Waiting to terminate...
+2025-06-06 14:11:42,293 - INFO - ffmpeg process 13524 should have terminated with a return code of 1.
+2025-06-06 14:11:42,731 - INFO - Playing: DDC Stage 5 Boss - Seija Kijin's Theme - Reverse Ideology (duration: 257s) for guild 1379636309768798208
+2025-06-06 14:11:42,788 - INFO - Skipped current song in guild 1379636309768798208
+2025-06-06 14:12:04,257 - INFO - Added to queue: \u5927\u7a7a\u9b54\u8853 Demystify Feast (duration: 268s) for guild 1379636309768798208
+2025-06-06 14:12:13,875 - INFO - Paused music in guild 1379636309768798208
+2025-06-06 14:12:16,731 - INFO - Resumed music in guild 1379636309768798208
+2025-06-06 14:12:21,176 - INFO - Finished playing DDC Stage 5 Boss - Seija Kijin's Theme - Reverse Ideology (duration: 257s) in guild 1379636309768798208
+2025-06-06 14:12:21,176 - INFO - ffmpeg process 6604 has not terminated. Waiting to terminate...
+2025-06-06 14:12:21,183 - INFO - ffmpeg process 6604 should have terminated with a return code of 1.
+2025-06-06 14:12:21,556 - INFO - Skipped current song in guild 1379636309768798208
+2025-06-06 14:12:21,772 - INFO - Playing: \u5927\u7a7a\u9b54\u8853 Demystify Feast (duration: 268s) for guild 1379636309768798208
+2025-06-06 14:12:37,201 - INFO - Finished playing \u5927\u7a7a\u9b54\u8853 Demystify Feast (duration: 268s) in guild 1379636309768798208
+2025-06-06 14:12:37,201 - INFO - No songs left in queue for guild 1379636309768798208
+2025-06-06 14:12:37,201 - INFO - ffmpeg process 20736 has not terminated. Waiting to terminate...
+2025-06-06 14:12:37,206 - INFO - ffmpeg process 20736 should have terminated with a return code of 1.
+2025-06-06 14:12:37,634 - INFO - Stopped music for guild 1379636309768798208
+2025-06-06 14:13:35,061 - INFO - The voice handshake is being terminated for Channel ID 1379665146271764573 (Guild ID 1379636309768798208)

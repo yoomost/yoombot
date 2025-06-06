@@ -12,7 +12,7 @@ async def play_song(ctx, query, queues):
     ydl_opts = {
         'format': 'bestaudio[acodec=mp3]/bestaudio',
         'noplaylist': True,
-        'cachedir': r'f:\yoombot\yt_dlp_cache',
+        'cachedir': r'.\yt_dlp_cache',
         'socket_timeout': 10,
         'default_search': 'ytsearch',
     }
@@ -20,14 +20,12 @@ async def play_song(ctx, query, queues):
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(query, download=False)
             if 'entries' in info and len(info['entries']) > 0:
-                # Search result
                 video = info['entries'][0]
                 url = video['webpage_url']
                 audio_url = video['url']
                 title = video.get('title', 'Unknown')
                 duration = video.get('duration', 0)
             else:
-                # Direct URL
                 url = query
                 audio_url = info['url']
                 title = info.get('title', 'Unknown')
@@ -52,15 +50,15 @@ async def play_next(ctx, voice_client, queues, bot):
     remove_from_queue(guild_id, 0)
     try:
         ffmpeg_options = {
-            'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 10 -probesize 128k -analyzeduration 20M',
-            'options': '-bufsize 256k'
+            'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
+            'options': '-vn'
         }
         def after_playing(error):
             if error:
                 print(f'Lỗi phát nhạc: {error}')
                 logging.error(f"Playback error for {title} in guild {guild_id}: {error}")
             else:
-                logging.info(f"Finished playing {title} (duration: {duration}s) in guild {guild_id} with return code 0")
+                logging.info(f"Finished playing {title} (duration: {duration}s) in guild {guild_id}")
             bot.loop.call_soon_threadsafe(asyncio.create_task, play_next(ctx, voice_client, queues, bot))
         voice_client.play(discord.FFmpegPCMAudio(audio_url, **ffmpeg_options), after=after_playing)
         await ctx.send(f'Đang phát: {title} ({duration // 60}:{duration % 60:02d})')
