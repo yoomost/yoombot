@@ -1,5 +1,0 @@
-token
-MTM3OTYzMzgyMzYzMjg1MTA2NQ.G9BaaL.eLRSIUcrnjrIHnuZ88vg9ht8mT5o1RzUlbveSY
-
-api (groq)
-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
