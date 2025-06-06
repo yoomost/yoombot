@@ -13,3 +13,157 @@
 2025-06-06 09:24:22,301 - INFO - Joined voice channel music
 2025-06-06 09:24:48,994 - ERROR - Error adding luna to queue: [0;31mERROR:[0m [generic] 'luna' is not a valid URL. Set --default-search "ytsearch" (or run  yt-dlp "ytsearch:luna" ) to search YouTube
 2025-06-06 09:27:48,231 - INFO - The voice handshake is being terminated for Channel ID 1379665146271764573 (Guild ID 1379636309768798208)
+2025-06-06 09:52:21,946 - INFO - logging in using static token
+2025-06-06 09:52:23,681 - INFO - Shard ID None has connected to Gateway (Session ID: 7f2f93f74949059178a562e67be49cc9).
+2025-06-06 09:52:25,711 - INFO - Bot started, databases initialized, and queues loaded
+2025-06-06 09:52:40,417 - INFO - Added to queue: \u521d\u661f\u5b66\u5712 \u300cLuna say maybe\u300dOfficial Music Video (HATSUBOSHI GAKUEN - Luna say maybe) for guild 1379636309768798208
+2025-06-06 09:52:40,418 - INFO - Connecting to voice...
+2025-06-06 09:52:40,418 - INFO - Starting voice handshake... (connection attempt 1)
+2025-06-06 09:52:40,864 - INFO - Voice handshake complete. Endpoint found: hongkong11058.discord.media
+2025-06-06 09:52:41,075 - INFO - Voice connection complete.
+2025-06-06 09:52:41,497 - INFO - Playing: \u521d\u661f\u5b66\u5712 \u300cLuna say maybe\u300dOfficial Music Video (HATSUBOSHI GAKUEN - Luna say maybe) for guild 1379636309768798208
+2025-06-06 09:52:42,407 - INFO - ffmpeg process 5072 successfully terminated with return code of 3199971767.
+2025-06-06 09:54:05,557 - INFO - Stopped music for guild 1379636309768798208
+2025-06-06 09:54:44,219 - INFO - Added to queue: \u521d\u661f\u5b66\u5712 \u300cLuna say maybe\u300dOfficial Music Video (HATSUBOSHI GAKUEN - Luna say maybe) for guild 1379636309768798208
+2025-06-06 09:54:44,597 - INFO - Playing: \u521d\u661f\u5b66\u5712 \u300cLuna say maybe\u300dOfficial Music Video (HATSUBOSHI GAKUEN - Luna say maybe) for guild 1379636309768798208
+2025-06-06 09:55:00,475 - INFO - ffmpeg process 17300 has not terminated. Waiting to terminate...
+2025-06-06 09:55:00,486 - INFO - ffmpeg process 17300 should have terminated with a return code of 1.
+2025-06-06 09:55:01,188 - INFO - Stopped music for guild 1379636309768798208
+2025-06-06 09:55:57,751 - INFO - Added to queue: \u521d\u661f\u5b66\u5712 \u300cLuna say maybe\u300dOfficial Music Video (HATSUBOSHI GAKUEN - Luna say maybe) for guild 1379636309768798208
+2025-06-06 09:55:58,173 - INFO - Playing: \u521d\u661f\u5b66\u5712 \u300cLuna say maybe\u300dOfficial Music Video (HATSUBOSHI GAKUEN - Luna say maybe) for guild 1379636309768798208
+2025-06-06 09:56:00,202 - INFO - ffmpeg process 2548 successfully terminated with return code of 3199971767.
+2025-06-06 09:56:32,233 - INFO - Stopped music for guild 1379636309768798208
+2025-06-06 09:56:56,997 - INFO - Added to queue: \u521d\u661f\u5b66\u5712 \u300cLuna say maybe\u300dOfficial Music Video (HATSUBOSHI GAKUEN - Luna say maybe) for guild 1379636309768798208
+2025-06-06 09:56:57,490 - INFO - Playing: \u521d\u661f\u5b66\u5712 \u300cLuna say maybe\u300dOfficial Music Video (HATSUBOSHI GAKUEN - Luna say maybe) for guild 1379636309768798208
+2025-06-06 09:57:27,874 - INFO - ffmpeg process 12688 has not terminated. Waiting to terminate...
+2025-06-06 09:57:27,880 - INFO - ffmpeg process 12688 should have terminated with a return code of 1.
+2025-06-06 09:57:28,434 - INFO - Stopped music for guild 1379636309768798208
+2025-06-06 09:57:45,626 - INFO - Added to queue: \u521d\u661f\u5b66\u5712 \u300cLuna say maybe\u300dOfficial Music Video (HATSUBOSHI GAKUEN - Luna say maybe) for guild 1379636309768798208
+2025-06-06 09:57:46,080 - INFO - Playing: \u521d\u661f\u5b66\u5712 \u300cLuna say maybe\u300dOfficial Music Video (HATSUBOSHI GAKUEN - Luna say maybe) for guild 1379636309768798208
+2025-06-06 09:57:46,996 - INFO - ffmpeg process 9616 successfully terminated with return code of 3199971767.
+2025-06-06 09:57:55,764 - INFO - Stopped music for guild 1379636309768798208
+2025-06-06 10:01:10,816 - INFO - The voice handshake is being terminated for Channel ID 1379665146271764573 (Guild ID 1379636309768798208)
+2025-06-06 10:01:14,526 - DEBUG - on_ready has successfully been registered as an event
+2025-06-06 10:01:14,527 - DEBUG - on_message has successfully been registered as an event
+2025-06-06 10:01:14,527 - DEBUG - on_member_join has successfully been registered as an event
+2025-06-06 10:01:14,527 - DEBUG - Using proactor: IocpProactor
+2025-06-06 10:01:14,528 - INFO - logging in using static token
+2025-06-06 10:01:16,274 - INFO - Shard ID None has connected to Gateway (Session ID: 5d43f2889ab548302c9154458337a76d).
+2025-06-06 10:01:18,295 - INFO - Bot started, databases initialized, and queues loaded
+2025-06-06 10:01:41,266 - INFO - Added to queue: \u521d\u661f\u5b66\u5712 \u300cLuna say maybe\u300dOfficial Music Video (HATSUBOSHI GAKUEN - Luna say maybe) for guild 1379636309768798208
+2025-06-06 10:01:41,267 - INFO - Connecting to voice...
+2025-06-06 10:01:41,268 - INFO - Starting voice handshake... (connection attempt 1)
+2025-06-06 10:01:41,722 - INFO - Voice handshake complete. Endpoint found: hongkong11058.discord.media
+2025-06-06 10:01:41,940 - INFO - Voice connection complete.
+2025-06-06 10:01:42,377 - INFO - Playing: \u521d\u661f\u5b66\u5712 \u300cLuna say maybe\u300dOfficial Music Video (HATSUBOSHI GAKUEN - Luna say maybe) for guild 1379636309768798208
+2025-06-06 10:01:43,303 - INFO - ffmpeg process 1632 successfully terminated with return code of 3199971767.
+2025-06-06 10:02:13,113 - INFO - The voice handshake is being terminated for Channel ID 1379665146271764573 (Guild ID 1379636309768798208)
+2025-06-06 10:04:52,076 - INFO - logging in using static token
+2025-06-06 10:04:53,661 - INFO - Shard ID None has connected to Gateway (Session ID: 38e22057892df27f8103625cfb3ad550).
+2025-06-06 10:04:55,662 - INFO - Bot started, databases initialized, and queues loaded
+2025-06-06 10:05:06,979 - INFO - Added to queue: \u521d\u661f\u5b66\u5712 \u300cLuna say maybe\u300dOfficial Music Video (HATSUBOSHI GAKUEN - Luna say maybe) for guild 1379636309768798208
+2025-06-06 10:05:06,981 - INFO - Connecting to voice...
+2025-06-06 10:05:06,981 - INFO - Starting voice handshake... (connection attempt 1)
+2025-06-06 10:05:07,460 - INFO - Voice handshake complete. Endpoint found: hongkong11058.discord.media
+2025-06-06 10:05:07,698 - INFO - Voice connection complete.
+2025-06-06 10:05:08,084 - INFO - Playing: \u521d\u661f\u5b66\u5712 \u300cLuna say maybe\u300dOfficial Music Video (HATSUBOSHI GAKUEN - Luna say maybe) for guild 1379636309768798208
+2025-06-06 10:05:14,155 - INFO - ffmpeg process 19584 has not terminated. Waiting to terminate...
+2025-06-06 10:05:14,160 - INFO - ffmpeg process 19584 should have terminated with a return code of 1.
+2025-06-06 10:05:14,612 - INFO - Stopped music for guild 1379636309768798208
+2025-06-06 10:09:32,543 - INFO - The voice handshake is being terminated for Channel ID 1379665146271764573 (Guild ID 1379636309768798208)
+2025-06-06 10:09:35,257 - INFO - logging in using static token
+2025-06-06 10:09:36,671 - INFO - Shard ID None has connected to Gateway (Session ID: b3ec279e3a6c4da3aa54ddc836a79c26).
+2025-06-06 10:09:38,691 - ERROR - Ignoring exception in on_ready
+Traceback (most recent call last):
+  File "C:\Users\denxi\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\client.py", line 481, in _run_event
+    await coro(*args, **kwargs)
+  File "f:\yoombot\bot.py", line 54, in on_ready
+    queues[guild_id] = get_queue(guild_id)
+                       ^^^^^^^^^
+NameError: name 'get_queue' is not defined
+2025-06-06 10:10:41,039 - INFO - logging in using static token
+2025-06-06 10:10:42,597 - INFO - Shard ID None has connected to Gateway (Session ID: 5e24a8faa789f7bcc1d3d0fecd6ce48f).
+2025-06-06 10:10:44,614 - INFO - Bot started, databases initialized, and queues loaded
+2025-06-06 10:11:31,960 - INFO - Connecting to voice...
+2025-06-06 10:11:31,960 - INFO - Starting voice handshake... (connection attempt 1)
+2025-06-06 10:11:32,400 - INFO - Voice handshake complete. Endpoint found: hongkong11058.discord.media
+2025-06-06 10:11:32,621 - INFO - Voice connection complete.
+2025-06-06 10:11:36,773 - INFO - Added to queue: \u521d\u661f\u5b66\u5712 \u300cLuna say maybe\u300dOfficial Music Video (HATSUBOSHI GAKUEN - Luna say maybe) for guild 1379636309768798208
+2025-06-06 10:11:38,956 - INFO - Playing: \u521d\u661f\u5b66\u5712 \u300cLuna say maybe\u300dOfficial Music Video (HATSUBOSHI GAKUEN - Luna say maybe) for guild 1379636309768798208
+2025-06-06 10:11:47,913 - ERROR - Calling the after function failed.
+Traceback (most recent call last):
+  File "C:\Users\denxi\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\player.py", line 788, in _call_after
+    self.after(error)
+  File "f:\yoombot\music_player.py", line 47, in after_playing
+    bot.loop.call_soon_threadsafe(asyncio.create_task, play_next(ctx, voice_client, queues))
+    ^^^
+NameError: name 'bot' is not defined
+2025-06-06 10:11:47,914 - INFO - ffmpeg process 15552 has not terminated. Waiting to terminate...
+2025-06-06 10:11:47,919 - INFO - ffmpeg process 15552 should have terminated with a return code of 1.
+2025-06-06 10:11:48,449 - INFO - Stopped music for guild 1379636309768798208
+2025-06-06 10:12:34,465 - INFO - The voice handshake is being terminated for Channel ID 1379665146271764573 (Guild ID 1379636309768798208)
+2025-06-06 10:13:19,639 - INFO - logging in using static token
+2025-06-06 10:13:21,175 - INFO - Shard ID None has connected to Gateway (Session ID: fe6a27e428a3aaacdcc7661ab654f546).
+2025-06-06 10:13:23,223 - INFO - Bot started, databases initialized, and queues loaded
+2025-06-06 10:13:32,680 - INFO - Connecting to voice...
+2025-06-06 10:13:32,681 - INFO - Starting voice handshake... (connection attempt 1)
+2025-06-06 10:13:33,123 - INFO - Voice handshake complete. Endpoint found: hongkong11058.discord.media
+2025-06-06 10:13:33,344 - INFO - Voice connection complete.
+2025-06-06 10:13:37,744 - INFO - Added to queue: \u521d\u661f\u5b66\u5712 \u300cLuna say maybe\u300dOfficial Music Video (HATSUBOSHI GAKUEN - Luna say maybe) for guild 1379636309768798208
+2025-06-06 10:13:38,127 - INFO - Playing: \u521d\u661f\u5b66\u5712 \u300cLuna say maybe\u300dOfficial Music Video (HATSUBOSHI GAKUEN - Luna say maybe) for guild 1379636309768798208
+2025-06-06 10:13:57,760 - INFO - ffmpeg process 13828 has not terminated. Waiting to terminate...
+2025-06-06 10:13:57,764 - INFO - ffmpeg process 13828 should have terminated with a return code of 1.
+2025-06-06 10:13:58,218 - INFO - Stopped music for guild 1379636309768798208
+2025-06-06 10:20:06,873 - INFO - The voice handshake is being terminated for Channel ID 1379665146271764573 (Guild ID 1379636309768798208)
+2025-06-06 10:20:08,751 - INFO - logging in using static token
+2025-06-06 10:20:10,266 - INFO - Shard ID None has connected to Gateway (Session ID: 618d05bdae1d0f949da67287bff006c5).
+2025-06-06 10:20:12,286 - INFO - Bot started, databases initialized, and queues loaded
+2025-06-06 10:20:20,766 - INFO - Connecting to voice...
+2025-06-06 10:20:20,767 - INFO - Starting voice handshake... (connection attempt 1)
+2025-06-06 10:20:21,233 - INFO - Voice handshake complete. Endpoint found: hongkong11058.discord.media
+2025-06-06 10:20:21,528 - INFO - Voice connection complete.
+2025-06-06 10:20:22,398 - ERROR - Error adding luna to queue: [0;31mERROR:[0m [generic] 'luna' is not a valid URL. Set --default-search "ytsearch" (or run  yt-dlp "ytsearch:luna" ) to search YouTube
+2025-06-06 10:20:56,304 - INFO - The voice handshake is being terminated for Channel ID 1379665146271764573 (Guild ID 1379636309768798208)
+2025-06-06 10:21:11,719 - INFO - logging in using static token
+2025-06-06 10:21:13,192 - INFO - Shard ID None has connected to Gateway (Session ID: c07861fa0db3492ed60c20e9e02daae3).
+2025-06-06 10:21:15,195 - INFO - Bot started, databases initialized, and queues loaded
+2025-06-06 10:21:18,584 - INFO - Connecting to voice...
+2025-06-06 10:21:18,584 - INFO - Starting voice handshake... (connection attempt 1)
+2025-06-06 10:21:19,027 - INFO - Voice handshake complete. Endpoint found: hongkong11058.discord.media
+2025-06-06 10:21:19,244 - INFO - Voice connection complete.
+2025-06-06 10:21:20,079 - ERROR - Error adding luna to queue: [0;31mERROR:[0m [generic] 'luna' is not a valid URL. Set --default-search "ytsearch" (or run  yt-dlp "ytsearch:luna" ) to search YouTube
+2025-06-06 10:25:57,245 - INFO - The voice handshake is being terminated for Channel ID 1379665146271764573 (Guild ID 1379636309768798208)
+2025-06-06 10:26:11,439 - INFO - logging in using static token
+2025-06-06 10:26:13,006 - INFO - Shard ID None has connected to Gateway (Session ID: bed14c01418933d73199f0de499aa5fd).
+2025-06-06 10:26:15,018 - INFO - Bot started, databases initialized, and queues loaded
+2025-06-06 10:26:22,930 - INFO - Connecting to voice...
+2025-06-06 10:26:22,930 - INFO - Starting voice handshake... (connection attempt 1)
+2025-06-06 10:26:23,380 - INFO - Voice handshake complete. Endpoint found: hongkong11058.discord.media
+2025-06-06 10:26:23,646 - INFO - Voice connection complete.
+2025-06-06 10:26:29,187 - INFO - Added to queue: \u521d\u661f\u5b66\u5712 \u300cLuna say maybe\u300dOfficial Music Video (HATSUBOSHI GAKUEN - Luna say maybe) for guild 1379636309768798208
+2025-06-06 10:26:30,993 - INFO - Playing: \u521d\u661f\u5b66\u5712 \u300cLuna say maybe\u300dOfficial Music Video (HATSUBOSHI GAKUEN - Luna say maybe) for guild 1379636309768798208
+2025-06-06 10:29:59,627 - ERROR - Calling the after function failed.
+Traceback (most recent call last):
+  File "C:\Users\denxi\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\player.py", line 788, in _call_after
+    self.after(error)
+  File "f:\yoombot\music_player.py", line 57, in after_playing
+    bot.loop.call_soon_threadsafe(asyncio.create_task, play_next(ctx, voice_client, queues, bot))
+                                  ^^^^^^^
+NameError: name 'asyncio' is not defined. Did you forget to import 'asyncio'
+2025-06-06 10:29:59,631 - INFO - ffmpeg process 16748 successfully terminated with return code of 0.
+2025-06-06 10:30:17,236 - INFO - The voice handshake is being terminated for Channel ID 1379665146271764573 (Guild ID 1379636309768798208)
+2025-06-06 10:30:28,405 - INFO - logging in using static token
+2025-06-06 10:30:29,919 - INFO - Shard ID None has connected to Gateway (Session ID: 1327e9d0f9789149961107518b9b7267).
+2025-06-06 10:30:31,962 - INFO - Bot started, databases initialized, and queues loaded
+2025-06-06 10:30:49,029 - INFO - Connecting to voice...
+2025-06-06 10:30:49,029 - INFO - Starting voice handshake... (connection attempt 1)
+2025-06-06 10:30:49,465 - INFO - Voice handshake complete. Endpoint found: hongkong11058.discord.media
+2025-06-06 10:30:49,750 - INFO - Voice connection complete.
+2025-06-06 10:30:55,647 - INFO - Added to queue: \u521d\u661f\u5b66\u5712 \u300cFighting My Way\u300dOfficial Music Video (HATSUBOSHI GAKUEN - Fighting My Way) for guild 1379636309768798208
+2025-06-06 10:30:56,063 - INFO - Playing: \u521d\u661f\u5b66\u5712 \u300cFighting My Way\u300dOfficial Music Video (HATSUBOSHI GAKUEN - Fighting My Way) for guild 1379636309768798208
+2025-06-06 10:33:55,787 - INFO - ffmpeg process 7588 successfully terminated with return code of 0.
+2025-06-06 10:34:49,897 - INFO - Added to queue: \u521d\u661f\u5b66\u5712 \u300cFighting My Way\u300dOfficial Music Video (HATSUBOSHI GAKUEN - Fighting My Way) for guild 1379636309768798208
+2025-06-06 10:34:50,530 - INFO - Playing: \u521d\u661f\u5b66\u5712 \u300cFighting My Way\u300dOfficial Music Video (HATSUBOSHI GAKUEN - Fighting My Way) for guild 1379636309768798208
+2025-06-06 10:34:55,115 - INFO - Shard ID None has successfully RESUMED session 1327e9d0f9789149961107518b9b7267.
+2025-06-06 10:37:20,813 - INFO - ffmpeg process 15532 successfully terminated with return code of 0.
+2025-06-06 10:42:42,523 - INFO - The voice handshake is being terminated for Channel ID 1379665146271764573 (Guild ID 1379636309768798208)

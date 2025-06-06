@@ -86,8 +86,8 @@ async def join(ctx):
     await ctx.send('Đã tham gia kênh voice.')
     logging.info(f"Joined voice channel {channel.name}")
 
-@bot.command(name='play', help='Phát nhạc từ URL YouTube hoặc tìm kiếm theo từ khóa')
-async def play(ctx, *, query: str):
+@bot.command(name='play', help='Thêm bài hát vào queue và phát nếu chưa có bài nào đang phát')
+async def play(ctx, url: str):
     voice_client = ctx.voice_client
     if voice_client is None:
         if ctx.author.voice is None:
@@ -96,7 +96,7 @@ async def play(ctx, *, query: str):
         else:
             voice_client = await ctx.author.voice.channel.connect()
 
-    if await play_song(ctx, query, queues):
+    if await play_song(ctx, url, queues):
         if not voice_client.is_playing():
             await play_next(ctx, voice_client, queues, bot)
 
