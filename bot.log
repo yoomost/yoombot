@@ -167,3 +167,50 @@ NameError: name 'asyncio' is not defined. Did you forget to import 'asyncio'
 2025-06-06 10:34:55,115 - INFO - Shard ID None has successfully RESUMED session 1327e9d0f9789149961107518b9b7267.
 2025-06-06 10:37:20,813 - INFO - ffmpeg process 15532 successfully terminated with return code of 0.
 2025-06-06 10:42:42,523 - INFO - The voice handshake is being terminated for Channel ID 1379665146271764573 (Guild ID 1379636309768798208)
+2025-06-06 11:02:41,390 - INFO - logging in using static token
+2025-06-06 11:02:42,791 - INFO - Shard ID None has connected to Gateway (Session ID: 8151d16945c276661b07a6e97db0264f).
+2025-06-06 11:02:44,805 - INFO - Bot started, databases initialized, and queues loaded
+2025-06-06 11:04:27,541 - INFO - logging in using static token
+2025-06-06 11:04:28,999 - INFO - Shard ID None has connected to Gateway (Session ID: 5955454857e14a8b57339a51e2d6462d).
+2025-06-06 11:04:31,025 - INFO - Bot started, databases initialized, and queues loaded
+2025-06-06 11:05:25,791 - INFO - Connecting to voice...
+2025-06-06 11:05:25,791 - INFO - Starting voice handshake... (connection attempt 1)
+2025-06-06 11:05:26,250 - INFO - Voice handshake complete. Endpoint found: hongkong11058.discord.media
+2025-06-06 11:05:26,507 - INFO - Voice connection complete.
+2025-06-06 11:05:31,628 - INFO - Added to queue: \u3010cover\u3011\u30c9\u30e9\u30de\u30c4\u30eb\u30ae\u30fc\u3010\u6b4c\u3063\u3066\u307f\u305f/\u3068\u304d\u306e\u305d\u3089/\u30db\u30ed\u30e9\u30a4\u30d6\u3011 for guild 1379636309768798208
+2025-06-06 11:05:32,493 - INFO - Playing: \u3010cover\u3011\u30c9\u30e9\u30de\u30c4\u30eb\u30ae\u30fc\u3010\u6b4c\u3063\u3066\u307f\u305f/\u3068\u304d\u306e\u305d\u3089/\u30db\u30ed\u30e9\u30a4\u30d6\u3011 for guild 1379636309768798208
+2025-06-06 11:08:54,631 - INFO - Finished playing \u3010cover\u3011\u30c9\u30e9\u30de\u30c4\u30eb\u30ae\u30fc\u3010\u6b4c\u3063\u3066\u307f\u305f/\u3068\u304d\u306e\u305d\u3089/\u30db\u30ed\u30e9\u30a4\u30d6\u3011 in guild 1379636309768798208 with return code 0
+2025-06-06 11:08:54,631 - INFO - No songs left in queue for guild 1379636309768798208
+2025-06-06 11:08:54,631 - INFO - ffmpeg process 18936 successfully terminated with return code of 0.
+2025-06-06 11:10:04,673 - INFO - The voice handshake is being terminated for Channel ID 1379665146271764573 (Guild ID 1379636309768798208)
+2025-06-06 11:11:37,064 - INFO - logging in using static token
+2025-06-06 11:11:38,463 - INFO - Shard ID None has connected to Gateway (Session ID: d4ed0e721f1cf6e4a2c45bd2f93d527d).
+2025-06-06 11:11:40,489 - INFO - Bot started, databases initialized, and queues loaded
+2025-06-06 11:11:50,983 - INFO - Connecting to voice...
+2025-06-06 11:11:50,983 - INFO - Starting voice handshake... (connection attempt 1)
+2025-06-06 11:11:51,438 - INFO - Voice handshake complete. Endpoint found: hongkong11058.discord.media
+2025-06-06 11:11:51,652 - INFO - Voice connection complete.
+2025-06-06 11:11:56,022 - INFO - Added to queue: \u6771\u65b9\u7d3a\u73e0\u4f1d\u306e\u66f2\u3092\u30e1\u30c9\u30ec\u30fc\u306b\u3057\u3066\u307f\u305f\u3010\u30d4\u30a2\u30ce\u3011 for guild 1379636309768798208
+2025-06-06 11:11:56,377 - INFO - Playing: \u6771\u65b9\u7d3a\u73e0\u4f1d\u306e\u66f2\u3092\u30e1\u30c9\u30ec\u30fc\u306b\u3057\u3066\u307f\u305f\u3010\u30d4\u30a2\u30ce\u3011 for guild 1379636309768798208
+2025-06-06 11:35:59,200 - INFO - Finished playing \u6771\u65b9\u7d3a\u73e0\u4f1d\u306e\u66f2\u3092\u30e1\u30c9\u30ec\u30fc\u306b\u3057\u3066\u307f\u305f\u3010\u30d4\u30a2\u30ce\u3011 in guild 1379636309768798208 with return code 0
+2025-06-06 11:35:59,201 - INFO - No songs left in queue for guild 1379636309768798208
+2025-06-06 11:35:59,201 - INFO - ffmpeg process 16620 successfully terminated with return code of 0.
+2025-06-06 11:38:38,253 - INFO - Added to queue: \u30d4\u30ce\u30ad\u30aa\u30d4\u30fc - \u4f59\u547d2:30 feat. \u521d\u97f3\u30df\u30af / 2:30 Life Remaining for guild 1379636309768798208
+2025-06-06 11:38:38,728 - INFO - Playing: \u30d4\u30ce\u30ad\u30aa\u30d4\u30fc - \u4f59\u547d2:30 feat. \u521d\u97f3\u30df\u30af / 2:30 Life Remaining for guild 1379636309768798208
+2025-06-06 11:40:50,251 - INFO - Finished playing \u30d4\u30ce\u30ad\u30aa\u30d4\u30fc - \u4f59\u547d2:30 feat. \u521d\u97f3\u30df\u30af / 2:30 Life Remaining in guild 1379636309768798208 with return code 0
+2025-06-06 11:40:50,252 - INFO - No songs left in queue for guild 1379636309768798208
+2025-06-06 11:40:50,252 - INFO - ffmpeg process 14780 successfully terminated with return code of 0.
+2025-06-06 11:46:33,699 - INFO - The voice handshake is being terminated for Channel ID 1379665146271764573 (Guild ID 1379636309768798208)
+2025-06-06 11:59:00,122 - INFO - logging in using static token
+2025-06-06 11:59:01,548 - INFO - Shard ID None has connected to Gateway (Session ID: 3a61300a203d0d782ccfdb29ba9ea032).
+2025-06-06 11:59:03,560 - INFO - Bot started, databases initialized, and queues loaded
+2025-06-06 11:59:13,796 - INFO - Connecting to voice...
+2025-06-06 11:59:13,796 - INFO - Starting voice handshake... (connection attempt 1)
+2025-06-06 11:59:14,246 - INFO - Voice handshake complete. Endpoint found: hongkong11058.discord.media
+2025-06-06 11:59:14,471 - INFO - Voice connection complete.
+2025-06-06 11:59:19,400 - INFO - Added to queue: \u6771\u65b9\u7d3a\u73e0\u4f1d\u306e\u66f2\u3092\u30e1\u30c9\u30ec\u30fc\u306b\u3057\u3066\u307f\u305f\u3010\u30d4\u30a2\u30ce\u3011 (duration: 1461s) for guild 1379636309768798208
+2025-06-06 11:59:19,784 - INFO - Playing: \u6771\u65b9\u7d3a\u73e0\u4f1d\u306e\u66f2\u3092\u30e1\u30c9\u30ec\u30fc\u306b\u3057\u3066\u307f\u305f\u3010\u30d4\u30a2\u30ce\u3011 (duration: 1461s) for guild 1379636309768798208
+2025-06-06 12:23:40,619 - INFO - Finished playing \u6771\u65b9\u7d3a\u73e0\u4f1d\u306e\u66f2\u3092\u30e1\u30c9\u30ec\u30fc\u306b\u3057\u3066\u307f\u305f\u3010\u30d4\u30a2\u30ce\u3011 (duration: 1461s) in guild 1379636309768798208 with return code 0
+2025-06-06 12:23:40,620 - INFO - No songs left in queue for guild 1379636309768798208
+2025-06-06 12:23:40,620 - INFO - ffmpeg process 8840 successfully terminated with return code of 0.
+2025-06-06 12:42:29,230 - INFO - The voice handshake is being terminated for Channel ID 1379665146271764573 (Guild ID 1379636309768798208)
