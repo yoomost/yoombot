@@ -214,3 +214,21 @@ NameError: name 'asyncio' is not defined. Did you forget to import 'asyncio'
 2025-06-06 12:23:40,620 - INFO - No songs left in queue for guild 1379636309768798208
 2025-06-06 12:23:40,620 - INFO - ffmpeg process 8840 successfully terminated with return code of 0.
 2025-06-06 12:42:29,230 - INFO - The voice handshake is being terminated for Channel ID 1379665146271764573 (Guild ID 1379636309768798208)
+2025-06-06 13:41:23,132 - INFO - logging in using static token
+2025-06-06 13:41:24,769 - INFO - Shard ID None has connected to Gateway (Session ID: b91bb222ac091ecbc16496bd41dadac2).
+2025-06-06 13:41:26,781 - INFO - Bot started, databases initialized, and queues loaded
+2025-06-06 13:41:40,607 - INFO - Connecting to voice...
+2025-06-06 13:41:40,607 - INFO - Starting voice handshake... (connection attempt 1)
+2025-06-06 13:41:41,047 - INFO - Voice handshake complete. Endpoint found: hongkong11039.discord.media
+2025-06-06 13:41:41,287 - INFO - Voice connection complete.
+2025-06-06 13:41:46,237 - INFO - Added to queue: \u30d4\u30ce\u30ad\u30aa\u30d4\u30fc - \u4f59\u547d2:30 feat. \u521d\u97f3\u30df\u30af / 2:30 Life Remaining (duration: 150s) for guild 1379636309768798208
+2025-06-06 13:41:46,825 - INFO - Playing: \u30d4\u30ce\u30ad\u30aa\u30d4\u30fc - \u4f59\u547d2:30 feat. \u521d\u97f3\u30df\u30af / 2:30 Life Remaining (duration: 150s) for guild 1379636309768798208
+2025-06-06 13:44:16,276 - INFO - Finished playing \u30d4\u30ce\u30ad\u30aa\u30d4\u30fc - \u4f59\u547d2:30 feat. \u521d\u97f3\u30df\u30af / 2:30 Life Remaining (duration: 150s) in guild 1379636309768798208
+2025-06-06 13:44:16,277 - INFO - No songs left in queue for guild 1379636309768798208
+2025-06-06 13:44:16,277 - INFO - ffmpeg process 15228 successfully terminated with return code of 0.
+2025-06-06 13:45:28,977 - INFO - Added to queue: \u30d4\u30ce\u30ad\u30aa\u30d4\u30fc - \u4f59\u547d2:30 feat. \u521d\u97f3\u30df\u30af / 2:30 Life Remaining (duration: 150s) for guild 1379636309768798208
+2025-06-06 13:45:29,643 - INFO - Playing: \u30d4\u30ce\u30ad\u30aa\u30d4\u30fc - \u4f59\u547d2:30 feat. \u521d\u97f3\u30df\u30af / 2:30 Life Remaining (duration: 150s) for guild 1379636309768798208
+2025-06-06 13:47:59,016 - INFO - Finished playing \u30d4\u30ce\u30ad\u30aa\u30d4\u30fc - \u4f59\u547d2:30 feat. \u521d\u97f3\u30df\u30af / 2:30 Life Remaining (duration: 150s) in guild 1379636309768798208
+2025-06-06 13:47:59,017 - INFO - No songs left in queue for guild 1379636309768798208
+2025-06-06 13:47:59,017 - INFO - ffmpeg process 13336 successfully terminated with return code of 0.
+2025-06-06 13:50:40,287 - INFO - The voice handshake is being terminated for Channel ID 1379665146271764573 (Guild ID 1379636309768798208)
