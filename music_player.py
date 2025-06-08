@@ -11,7 +11,7 @@ async def play_song(ctx, query, queues):
 
     ydl_opts = {
         'format': 'bestaudio[acodec=mp3]/bestaudio',
-        'cachedir': r'.\yt_dlp_cache',
+        'cachedir': r'./data/yt_dlp_cache',
         'socket_timeout': 10,
         'default_search': 'ytsearch',
     }

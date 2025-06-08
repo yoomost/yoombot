@@ -14,4 +14,4 @@ node_modules/
 yoombot.txt
 
 # Ignore cache
-/__pycache__/
+__pycache__/

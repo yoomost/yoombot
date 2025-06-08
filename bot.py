@@ -9,7 +9,7 @@ from database import init_db, add_message, get_history, get_queue, clear_queue
 from music_player import play_song, play_next
 
 # Set up logging to local file
-logging.basicConfig(filename=r'bot.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(filename=r'./data/bot.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Discord bot setup
 intents = discord.Intents.default()
