@@ -23,7 +23,7 @@ queues = {}
 def get_groq_response(channel_id, message):
     history = get_history(channel_id)
     history.append({"role": "user", "content": message})
-    full_history = [{"role": "system", "content": "You are a helpful assistant. Keep responses concise, under 1500 characters."}] + history
+    full_history = [{"role": "system", "content": "You are a helpful assistant. Keep responses concise, under 2000 characters."}] + history
     url = "https://api.groq.com/openai/v1/chat/completions"
     headers = {
         "Content-Type": "application/json",
@@ -32,7 +32,7 @@ def get_groq_response(channel_id, message):
     data = {
         "model": "llama3-8b-8192",
         "messages": full_history,
-        "max_tokens": 1500,
+        "max_tokens": 2000,
         "stream": False
     }
     try:
