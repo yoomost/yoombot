@@ -11,7 +11,7 @@ node_modules/
 /build/
 
 # Ignore text
-*.txt
+yoombot.txt
 
 # Ignore cache
-__pycache__
+/__pycache__/
