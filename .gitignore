@@ -14,4 +14,6 @@ node_modules/
 yoombot.txt
 
 # Ignore cache
+*.db
+yt_dlp_cache/
 __pycache__/
