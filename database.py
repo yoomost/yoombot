@@ -13,7 +13,7 @@ def init_db():
     conn = sqlite3.connect(r'.\data\queues.db')
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS queues
-                 (id INTEGER PRIMARY KEY, guild_id TEXT, url TEXT, audio_url TEXT, title TEXT, position INTEGER)''')
+                 (id INTEGER PRIMARY KEY, guild_id TEXT, url TEXT, audio_url TEXT, title TEXT, duration INTEGER, position INTEGER)''')
     conn.commit()
     conn.close()
 
@@ -33,22 +33,22 @@ def get_history(channel_id, limit=10):
     conn.close()
     return history[::-1]  # Reverse to chronological order
 
-def add_to_queue(guild_id, url, audio_url, title):
+def add_to_queue(guild_id, url, audio_url, title, duration=0):
     conn = sqlite3.connect(r'.\data\queues.db')
     c = conn.cursor()
     c.execute("SELECT MAX(position) FROM queues WHERE guild_id = ?", (str(guild_id),))
     max_position = c.fetchone()[0]
     position = (max_position + 1) if max_position is not None else 0
-    c.execute("INSERT INTO queues (guild_id, url, audio_url, title, position) VALUES (?, ?, ?, ?, ?)",
-              (str(guild_id), url, audio_url, title, position))
+    c.execute("INSERT INTO queues (guild_id, url, audio_url, title, duration, position) VALUES (?, ?, ?, ?, ?, ?)",
+              (str(guild_id), url, audio_url, title, duration, position))
     conn.commit()
     conn.close()
 
 def get_queue(guild_id):
     conn = sqlite3.connect(r'.\data\queues.db')
     c = conn.cursor()
-    c.execute("SELECT url, audio_url, title FROM queues WHERE guild_id = ? ORDER BY position", (str(guild_id),))
-    queue = [(row[0], row[1], row[2]) for row in c.fetchall()]
+    c.execute("SELECT url, audio_url, title, duration FROM queues WHERE guild_id = ? ORDER BY position", (str(guild_id),))
+    queue = [(row[0], row[1], row[2], row[3] or 0) for row in c.fetchall()]  # Default duration to 0 if None
     conn.close()
     return queue
 

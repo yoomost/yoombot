@@ -9,6 +9,9 @@ WORKDIR /app
 # Copy project files
 COPY requirements.txt .
 COPY bot.py .
+COPY config.py .
+COPY database.py .
+COPY music_player.py .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt

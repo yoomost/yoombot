@@ -1,14 +1,19 @@
-app = "your-bot-name"
-primary_region = "sin"  # Singapore, adjust to your region
+# fly.toml app configuration file generated for your-bot-name-restless-bird-9717 on 2025-06-08T23:18:11+07:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'your-bot-name-restless-bird-9717'
+primary_region = 'sin'
 
 [build]
-  dockerfile = "Dockerfile"
+  dockerfile = 'Dockerfile'
 
-[mounts]
-  source = "bot_data"
-  destination = "/data"
+[[mounts]]
+  source = 'bot_data'
+  destination = '/data'
 
 [[vm]]
-  memory = "256mb"
-  cpu_kind = "shared"
+  memory = '256mb'
+  cpu_kind = 'shared'
   cpus = 1
