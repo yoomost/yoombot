@@ -1,4 +1,5 @@
 import discord
+from discord import app_commands
 from discord.ext import commands
 import requests
 import json
@@ -7,7 +8,7 @@ import asyncio
 import yt_dlp
 from config import BOT_TOKEN, GROQ_API_KEY, CHANNEL_ID, WELCOME_CHANNEL_ID
 from database import init_db, add_message, get_history, get_queue, clear_queue
-from music_player import play_song, play_next
+from music_player import play_song, play_playlist, play_next, get_progress_bar
 
 # Set up logging to local file
 logging.basicConfig(filename=r'./data/bot.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -20,6 +21,7 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 
 # Dictionary to store music queues in memory (synced with database)
 queues = {}
+loop_status = {}  # Để theo dõi trạng thái lặp lại
 
 def get_groq_response(channel_id, message):
     history = get_history(channel_id)
@@ -54,7 +56,6 @@ async def safe_voice_connect(ctx, timeout=10, retries=3):
     
     channel = ctx.author.voice.channel
     
-    # If already connected to the same channel
     if ctx.voice_client is not None:
         if ctx.voice_client.channel == channel:
             return ctx.voice_client
@@ -64,10 +65,8 @@ async def safe_voice_connect(ctx, timeout=10, retries=3):
                 return ctx.voice_client
             except Exception as e:
                 logging.error(f"Error moving to voice channel: {e}")
-                # Disconnect and try fresh connection
                 await ctx.voice_client.disconnect()
     
-    # Try to connect with retries
     for attempt in range(retries):
         try:
             await ctx.send(f'🔄 Đang kết nối đến kênh voice... (Lần thử {attempt + 1}/{retries})')
@@ -79,7 +78,7 @@ async def safe_voice_connect(ctx, timeout=10, retries=3):
             logging.warning(f"Voice connection timeout on attempt {attempt + 1}")
             if attempt < retries - 1:
                 await ctx.send(f'⏰ Kết nối bị timeout, đang thử lại...')
-                await asyncio.sleep(2)  # Wait before retry
+                await asyncio.sleep(2)
             else:
                 await ctx.send('❌ Không thể kết nối đến kênh voice sau nhiều lần thử. Vui lòng thử lại sau.')
         except Exception as e:
@@ -95,11 +94,12 @@ async def safe_voice_connect(ctx, timeout=10, retries=3):
 @bot.event
 async def on_ready():
     print(f'{bot.user} đã kết nối với Discord!')
-    init_db()  # Initialize databases
+    init_db()
     for guild in bot.guilds:
         guild_id = str(guild.id)
         queues[guild_id] = get_queue(guild_id)
-    logging.info("Bot started, databases initialized, and queues loaded")
+    await bot.tree.sync()  # Đồng bộ slash commands
+    logging.info("Bot started, databases initialized, queues loaded, and slash commands synced")
 
 @bot.event
 async def on_message(message):
@@ -125,24 +125,317 @@ async def on_member_join(member):
 
 @bot.event
 async def on_voice_state_update(member, before, after):
-    """Handle voice state updates to manage bot behavior"""
     if member == bot.user:
         return
     
-    # Check if bot is alone in voice channel
     if before.channel and bot.user in before.channel.members:
-        # Count non-bot members in the channel
         human_members = [m for m in before.channel.members if not m.bot]
         if len(human_members) == 0:
-            # Bot is alone, disconnect after a delay
             voice_client = discord.utils.get(bot.voice_clients, guild=before.channel.guild)
             if voice_client:
-                await asyncio.sleep(30)  # Wait 30 seconds
-                # Check again if still alone
+                await asyncio.sleep(30)
                 human_members = [m for m in before.channel.members if not m.bot]
                 if len(human_members) == 0:
                     await voice_client.disconnect()
                     logging.info(f"Disconnected from empty voice channel in guild {before.channel.guild.id}")
+
+# Slash Commands
+@bot.tree.command(name="play", description="Phát nhạc từ URL YouTube/Spotify hoặc tìm kiếm theo từ khóa")
+@app_commands.describe(query="Tên bài hát, URL YouTube hoặc Spotify")
+async def play(interaction: discord.Interaction, query: str):
+    await interaction.response.defer()
+    ctx = await bot.get_context(interaction)
+    voice_client = await safe_voice_connect(ctx)
+    if voice_client is None:
+        await interaction.followup.send("❌ Không thể kết nối voice channel!")
+        return
+    
+    try:
+        if "list=" in query or "playlist" in query.lower():
+            if await play_playlist(ctx, query, queues):
+                if not voice_client.is_playing():
+                    await play_next(ctx, voice_client, queues, bot)
+                await interaction.followup.send("🎶 Đã thêm playlist vào queue!")
+        else:
+            if await play_song(ctx, query, queues):
+                if not voice_client.is_playing():
+                    await play_next(ctx, voice_client, queues, bot)
+                await interaction.followup.send("🎵 Đã thêm bài hát vào queue!")
+    except Exception as e:
+        await interaction.followup.send(f'❌ Lỗi khi phát nhạc: {str(e)}')
+        logging.error(f"Error in play command: {e}")
+
+@bot.tree.command(name="skip", description="Bỏ qua bài hát hiện tại")
+async def skip(interaction: discord.Interaction):
+    ctx = await bot.get_context(interaction)
+    voice_client = ctx.voice_client
+    if voice_client is None or not voice_client.is_playing():
+        await interaction.response.send_message('❌ Không có bài hát nào đang phát.')
+        return
+    voice_client.stop()
+    await interaction.response.send_message('⏭️ Đã bỏ qua bài hát hiện tại.')
+    logging.info(f"Skipped current song in guild {ctx.guild.id}")
+
+@bot.tree.command(name="pause", description="Tạm dừng bài hát đang phát")
+async def pause(interaction: discord.Interaction):
+    ctx = await bot.get_context(interaction)
+    voice_client = ctx.voice_client
+    if voice_client is None or not voice_client.is_playing():
+        await interaction.response.send_message('❌ Không có bài hát nào đang phát để tạm dừng.')
+        return
+    voice_client.pause()
+    await interaction.response.send_message('⏸️ Đã tạm dừng bài hát.')
+    logging.info(f"Paused music in guild {ctx.guild.id}")
+
+@bot.tree.command(name="resume", description="Tiếp tục phát bài hát đã tạm dừng")
+async def resume(interaction: discord.Interaction):
+    ctx = await bot.get_context(interaction)
+    voice_client = ctx.voice_client
+    if voice_client is None or not voice_client.is_paused():
+        await interaction.response.send_message('❌ Không có bài hát nào đang tạm dừng để tiếp tục.')
+        return
+    voice_client.resume()
+    await interaction.response.send_message('▶️ Đã tiếp tục phát bài hát.')
+    logging.info(f"Resumed music in guild {ctx.guild.id}")
+
+@bot.tree.command(name="queue", description="Hiển thị danh sách queue nhạc hiện tại")
+async def show_queue(interaction: discord.Interaction):
+    ctx = await bot.get_context(interaction)
+    guild_id = str(ctx.guild.id)
+    queue = queues.get(guild_id, [])
+    if len(queue) == 0:
+        await interaction.response.send_message('📋 Queue hiện tại đang trống.')
+    else:
+        queue_list = []
+        for i, (url, audio_url, title, duration) in enumerate(queue):
+            duration_str = f"{duration // 60}:{duration % 60:02d}" if duration > 0 else "Unknown"
+            status = "🎵 **Đang phát**" if i == 0 else f"{i+1}."
+            queue_list.append(f'{status} **{title}** ({duration_str})')
+        
+        result = f'🎵 **Danh sách queue ({len(queue)} bài):**\n\n' + '\n'.join(queue_list)
+        await interaction.response.send_message(result[:2000])
+        logging.info(f"Displayed queue for guild {guild_id}")
+
+@bot.tree.command(name="now", description="Hiển thị bài hát đang phát")
+async def now_playing(interaction: discord.Interaction):
+    ctx = await bot.get_context(interaction)
+    voice_client = ctx.voice_client
+    if voice_client is None or not voice_client.is_playing():
+        await interaction.response.send_message('❌ Không có bài hát nào đang phát.')
+        return
+    
+    guild_id = str(ctx.guild.id)
+    queue = queues.get(guild_id, [])
+    if queue:
+        url, _, title, duration = queue[0]
+        duration_str = f"{duration // 60}:{duration % 60:02d}" if duration > 0 else "Unknown"
+        await interaction.response.send_message(f'🎵 **Đang phát:** {title} ({duration_str})')
+    else:
+        await interaction.response.send_message('🎵 Đang phát nhạc.')
+
+@bot.tree.command(name="stop", description="Dừng phát nhạc và xóa queue")
+async def stop(interaction: discord.Interaction):
+    ctx = await bot.get_context(interaction)
+    voice_client = ctx.voice_client
+    if voice_client is None:
+        await interaction.response.send_message('❌ Chưa kết nối với kênh voice')
+        return
+    
+    voice_client.stop()
+    guild_id = str(ctx.guild.id)
+    clear_queue(guild_id)
+    queues[guild_id] = []
+    loop_status[guild_id] = {"mode": "off", "current_song": None, "start_time": None}
+    await interaction.response.send_message('⏹️ Đã dừng nhạc và xóa queue.')
+    logging.info(f"Stopped music and cleared queue for guild {ctx.guild.id}")
+
+@bot.tree.command(name="leave", description="Rời khỏi kênh voice")
+async def leave(interaction: discord.Interaction):
+    ctx = await bot.get_context(interaction)
+    voice_client = ctx.voice_client
+    if voice_client is None:
+        await interaction.response.send_message('❌ Chưa kết nối với kênh voice')
+        return
+    
+    clear_queue(str(ctx.guild.id))
+    queues[str(ctx.guild.id)] = []
+    loop_status[str(ctx.guild.id)] = {"mode": "off", "current_song": None, "start_time": None}
+    await voice_client.disconnect()
+    await interaction.response.send_message('👋 Đã rời khỏi kênh voice.')
+    logging.info(f"Left voice channel for guild {ctx.guild.id}")
+
+@bot.tree.command(name="loop", description="Bật/tắt chế độ lặp lại bài hát hoặc queue")
+@app_commands.describe(mode="Chọn chế độ: off, song, queue")
+@app_commands.choices(mode=[
+    app_commands.Choice(name="Tắt", value="off"),
+    app_commands.Choice(name="Lặp bài hát", value="song"),
+    app_commands.Choice(name="Lặp queue", value="queue")
+])
+async def loop(interaction: discord.Interaction, mode: str):
+    ctx = await bot.get_context(interaction)
+    guild_id = str(ctx.guild.id)
+    
+    if mode not in ["off", "song", "queue"]:
+        await interaction.response.send_message("❌ Chế độ không hợp lệ! Chọn: off, song, queue")
+        return
+    
+    loop_status[guild_id] = loop_status.get(guild_id, {})
+    loop_status[guild_id]["mode"] = mode
+    
+    if mode == "off":
+        await interaction.response.send_message("🔁 Đã tắt chế độ lặp lại.")
+    elif mode == "song":
+        await interaction.response.send_message("🔂 Đã bật chế độ lặp bài hát hiện tại.")
+    elif mode == "queue":
+        await interaction.response.send_message("🔁 Đã bật chế độ lặp toàn bộ queue.")
+    
+    logging.info(f"Set loop mode to {mode} for guild {guild_id}")
+
+@bot.tree.command(name="progress", description="Hiển thị thanh tiến trình bài hát đang phát")
+async def progress(interaction: discord.Interaction):
+    ctx = await bot.get_context(interaction)
+    progress_text = await get_progress_bar(ctx, queues)
+    await interaction.response.send_message(progress_text)
+
+# Prefix Commands (Restored)
+@bot.command(name='play', help='Phát nhạc từ URL YouTube hoặc tìm kiếm theo từ khóa')
+async def play_prefix(ctx, *, query: str):
+    voice_client = await safe_voice_connect(ctx)
+    if voice_client is None:
+        await ctx.send("❌ Không thể kết nối voice channel!")
+        return
+    
+    try:
+        if "list=" in query or "playlist" in query.lower():
+            if await play_playlist(ctx, query, queues):
+                if not voice_client.is_playing():
+                    await play_next(ctx, voice_client, queues, bot)
+                await ctx.send("🎶 Đã thêm playlist vào queue!")
+        else:
+            if await play_song(ctx, query, queues):
+                if not voice_client.is_playing():
+                    await play_next(ctx, voice_client, queues, bot)
+                await ctx.send("🎵 Đã thêm bài hát vào queue!")
+    except Exception as e:
+        await ctx.send(f'❌ Lỗi khi phát nhạc: {str(e)}')
+        logging.error(f"Error in play command: {e}")
+
+@bot.command(name='skip', help='Bỏ qua bài hát hiện tại')
+async def skip_prefix(ctx):
+    voice_client = ctx.voice_client
+    if voice_client is None or not voice_client.is_playing():
+        await ctx.send('❌ Không có bài hát nào đang phát.')
+        return
+    voice_client.stop()
+    await ctx.send('⏭️ Đã bỏ qua bài hát hiện tại.')
+    logging.info(f"Skipped current song in guild {ctx.guild.id}")
+
+@bot.command(name='pause', help='Tạm dừng bài hát đang phát')
+async def pause_prefix(ctx):
+    voice_client = ctx.voice_client
+    if voice_client is None or not voice_client.is_playing():
+        await ctx.send('❌ Không có bài hát nào đang phát để tạm dừng.')
+        return
+    voice_client.pause()
+    await ctx.send('⏸️ Đã tạm dừng bài hát.')
+    logging.info(f"Paused music in guild {ctx.guild.id}")
+
+@bot.command(name='resume', help='Tiếp tục phát bài hát đã tạm dừng')
+async def resume_prefix(ctx):
+    voice_client = ctx.voice_client
+    if voice_client is None or not voice_client.is_paused():
+        await ctx.send('❌ Không có bài hát nào đang tạm dừng để tiếp tục.')
+        return
+    voice_client.resume()
+    await ctx.send('▶️ Đã tiếp tục phát bài hát.')
+    logging.info(f"Resumed music in guild {ctx.guild.id}")
+
+@bot.command(name='queue', help='Hiển thị danh sách queue nhạc hiện tại')
+async def show_queue_prefix(ctx):
+    guild_id = str(ctx.guild.id)
+    queue = queues.get(guild_id, [])
+    if len(queue) == 0:
+        await ctx.send('📋 Queue hiện tại đang trống.')
+    else:
+        queue_list = []
+        for i, (url, audio_url, title, duration) in enumerate(queue):
+            duration_str = f"{duration // 60}:{duration % 60:02d}" if duration > 0 else "Unknown"
+            status = "🎵 **Đang phát**" if i == 0 else f"{i+1}."
+            queue_list.append(f'{status} **{title}** ({duration_str})')
+        
+        result = f'🎵 **Danh sách queue ({len(queue)} bài):**\n\n' + '\n'.join(queue_list)
+        await ctx.send(result[:2000])
+        logging.info(f"Displayed queue for guild {guild_id}")
+
+@bot.command(name='now', help='Hiển thị bài hát đang phát')
+async def now_playing_prefix(ctx):
+    voice_client = ctx.voice_client
+    if voice_client is None or not voice_client.is_playing():
+        await ctx.send('❌ Không có bài hát nào đang phát.')
+        return
+    
+    guild_id = str(ctx.guild.id)
+    queue = queues.get(guild_id, [])
+    if queue:
+        url, _, title, duration = queue[0]
+        duration_str = f"{duration // 60}:{duration % 60:02d}" if duration > 0 else "Unknown"
+        await ctx.send(f'🎵 **Đang phát:** {title} ({duration_str})')
+    else:
+        await ctx.send('🎵 Đang phát nhạc.')
+
+@bot.command(name='stop', help='Dừng phát nhạc và xóa queue')
+async def stop_prefix(ctx):
+    voice_client = ctx.voice_client
+    if voice_client is None:
+        await ctx.send('❌ Chưa kết nối với kênh voice')
+        return
+    
+    voice_client.stop()
+    guild_id = str(ctx.guild.id)
+    clear_queue(guild_id)
+    queues[guild_id] = []
+    loop_status[guild_id] = {"mode": "off", "current_song": None, "start_time": None}
+    await ctx.send('⏹️ Đã dừng nhạc và xóa queue.')
+    logging.info(f"Stopped music and cleared queue for guild {ctx.guild.id}")
+
+@bot.command(name='leave', help='Rời khỏi kênh voice')
+async def leave_prefix(ctx):
+    voice_client = ctx.voice_client
+    if voice_client is None:
+        await ctx.send('❌ Chưa kết nối với kênh voice')
+        return
+    
+    clear_queue(str(ctx.guild.id))
+    queues[str(ctx.guild.id)] = []
+    loop_status[str(ctx.guild.id)] = {"mode": "off", "current_song": None, "start_time": None}
+    await voice_client.disconnect()
+    await ctx.send('👋 Đã rời khỏi kênh voice.')
+    logging.info(f"Left voice channel for guild {ctx.guild.id}")
+
+@bot.command(name='loop', help='Bật/tắt chế độ lặp lại bài hát hoặc queue (off, song, queue)')
+async def loop_prefix(ctx, mode: str):
+    guild_id = str(ctx.guild.id)
+    
+    if mode not in ["off", "song", "queue"]:
+        await ctx.send("❌ Chế độ không hợp lệ! Chọn: off, song, queue")
+        return
+    
+    loop_status[guild_id] = loop_status.get(guild_id, {})
+    loop_status[guild_id]["mode"] = mode
+    
+    if mode == "off":
+        await ctx.send("🔁 Đã tắt chế độ lặp lại.")
+    elif mode == "song":
+        await ctx.send("🔂 Đã bật chế độ lặp bài hát hiện tại.")
+    elif mode == "queue":
+        await ctx.send("🔁 Đã bật chế độ lặp toàn bộ queue.")
+    
+    logging.info(f"Set loop mode to {mode} for guild {guild_id}")
+
+@bot.command(name='progress', help='Hiển thị thanh tiến trình bài hát đang phát')
+async def progress_prefix(ctx):
+    progress_text = await get_progress_bar(ctx, queues)
+    await ctx.send(progress_text)
 
 @bot.command(name='join', help='Tham gia kênh voice của người dùng')
 async def join(ctx):
@@ -152,7 +445,6 @@ async def join(ctx):
 
 @bot.command(name='search', help='Tìm kiếm bài hát mà không phát (để debug)')
 async def search(ctx, *, query: str):
-    """Command để test tìm kiếm"""
     ydl_opts = {
         'format': 'bestaudio/best',
         'quiet': True,
@@ -160,7 +452,7 @@ async def search(ctx, *, query: str):
         'socket_timeout': 30,
     }
     
-    search_query = f"ytsearch5:{query}"  # Tìm 5 kết quả
+    search_query = f"ytsearch5:{query}"
     
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -177,118 +469,13 @@ async def search(ctx, *, query: str):
                         results.append(f"{i+1}. **{title}**\n   👤 {uploader} | ⏱️ {duration_str}")
                 
                 result_text = f"🔍 Kết quả tìm kiếm cho '{query}':\n\n" + "\n\n".join(results)
-                await ctx.send(result_text[:2000])  # Giới hạn 2000 ký tự
+                await ctx.send(result_text[:2000])
             else:
                 await ctx.send(f"❌ Không tìm thấy kết quả cho: '{query}'")
                 
     except Exception as e:
         await ctx.send(f"❌ Lỗi khi tìm kiếm: {str(e)}")
         logging.error(f"Search error for '{query}': {e}")
-
-@bot.command(name='play', help='Phát nhạc từ URL YouTube hoặc tìm kiếm theo từ khóa')
-async def play(ctx, *, query: str):
-    # Use the safe voice connect function
-    voice_client = await safe_voice_connect(ctx)
-    if voice_client is None:
-        return  # Connection failed
-    
-    try:
-        if await play_song(ctx, query, queues):
-            if not voice_client.is_playing():
-                await play_next(ctx, voice_client, queues, bot)
-    except Exception as e:
-        await ctx.send(f'❌ Lỗi khi phát nhạc: {str(e)}')
-        logging.error(f"Error in play command: {e}")
-
-@bot.command(name='skip', help='Bỏ qua bài hát hiện tại')
-async def skip(ctx):
-    voice_client = ctx.voice_client
-    if voice_client is None or not voice_client.is_playing():
-        await ctx.send('❌ Không có bài hát nào đang phát.')
-        return
-    voice_client.stop()
-    await ctx.send('⏭️ Đã bỏ qua bài hát hiện tại.')
-    logging.info(f"Skipped current song in guild {ctx.guild.id}")
-
-@bot.command(name='pause', help='Tạm dừng bài hát đang phát')
-async def pause(ctx):
-    voice_client = ctx.voice_client
-    if voice_client is None or not voice_client.is_playing():
-        await ctx.send('❌ Không có bài hát nào đang phát để tạm dừng.')
-        return
-    voice_client.pause()
-    await ctx.send('⏸️ Đã tạm dừng bài hát.')
-    logging.info(f"Paused music in guild {ctx.guild.id}")
-
-@bot.command(name='resume', help='Tiếp tục phát bài hát đã tạm dừng')
-async def resume(ctx):
-    voice_client = ctx.voice_client
-    if voice_client is None or not voice_client.is_paused():
-        await ctx.send('❌ Không có bài hát nào đang tạm dừng để tiếp tục.')
-        return
-    voice_client.resume()
-    await ctx.send('▶️ Đã tiếp tục phát bài hát.')
-    logging.info(f"Resumed music in guild {ctx.guild.id}")
-
-@bot.command(name='queue', help='Hiển thị danh sách queue nhạc hiện tại')
-async def show_queue(ctx):
-    guild_id = str(ctx.guild.id)
-    queue = queues.get(guild_id, [])
-    if len(queue) == 0:
-        await ctx.send('📋 Queue hiện tại đang trống.')
-    else:
-        queue_list = []
-        for i, (url, audio_url, title, duration) in enumerate(queue):
-            duration_str = f"{duration // 60}:{duration % 60:02d}" if duration > 0 else "Unknown"
-            status = "🎵 **Đang phát**" if i == 0 else f"{i+1}."
-            queue_list.append(f'{status} **{title}** ({duration_str})')
-        
-        result = f'🎵 **Danh sách queue ({len(queue)} bài):**\n\n' + '\n'.join(queue_list)
-        await ctx.send(result[:2000])  # Giới hạn 2000 ký tự
-        logging.info(f"Displayed queue for guild {guild_id}")
-
-@bot.command(name='now', help='Hiển thị bài hát đang phát')
-async def now_playing(ctx):
-    voice_client = ctx.voice_client
-    if voice_client is None or not voice_client.is_playing():
-        await ctx.send('❌ Không có bài hát nào đang phát.')
-        return
-    
-    guild_id = str(ctx.guild.id)
-    queue = queues.get(guild_id, [])
-    if queue:
-        url, _, title, duration = queue[0]
-        duration_str = f"{duration // 60}:{duration % 60:02d}" if duration > 0 else "Unknown"
-        await ctx.send(f'🎵 **Đang phát:** {title} ({duration_str})')
-    else:
-        await ctx.send('🎵 Đang phát nhạc.')
-
-@bot.command(name='stop', help='Dừng phát nhạc và xóa queue')
-async def stop(ctx):
-    voice_client = ctx.voice_client
-    if voice_client is None:
-        await ctx.send('❌ Chưa kết nối với kênh voice')
-        return
-    
-    voice_client.stop()
-    guild_id = str(ctx.guild.id)
-    clear_queue(guild_id)
-    queues[guild_id] = []
-    await ctx.send('⏹️ Đã dừng nhạc và xóa queue.')
-    logging.info(f"Stopped music and cleared queue for guild {ctx.guild.id}")
-
-@bot.command(name='leave', help='Rời khỏi kênh voice')
-async def leave(ctx):
-    voice_client = ctx.voice_client
-    if voice_client is None:
-        await ctx.send('❌ Chưa kết nối với kênh voice')
-        return
-    
-    clear_queue(str(ctx.guild.id))
-    queues[str(ctx.guild.id)] = []
-    await voice_client.disconnect()
-    await ctx.send('👋 Đã rời khỏi kênh voice.')
-    logging.info(f"Left voice channel for guild {ctx.guild.id}")
 
 @bot.command(name='debug', help='Hiển thị thông tin debug')
 async def debug(ctx):
@@ -305,6 +492,7 @@ async def debug(ctx):
 📋 Queue Length: {len(queue)}
 💾 Memory Queue: {len(queues.get(guild_id, []))}
 🌐 Voice Channel: {voice_client.channel.name if voice_client and voice_client.channel else 'None'}
+🔁 Loop Mode: {loop_status.get(guild_id, {}).get('mode', 'off')}
     """
     await ctx.send(debug_info)
 
@@ -318,14 +506,10 @@ async def ffmpeg_test(ctx):
     except Exception as e:
         await ctx.send(f"FFmpeg error: {e}")
 
-# Thêm những lệnh debug này vào file bot.py (sau các command khác)
-
 @bot.command(name='test_stream', help='Test stream URL cho debug')
 async def test_stream(ctx, *, query: str):
-    """Test stream URL"""
     from music_player import get_fresh_audio_url, test_stream_url
     
-    # Lấy URL video
     ydl_opts = {
         'format': 'bestaudio/best',
         'quiet': True,
@@ -354,15 +538,12 @@ async def test_stream(ctx, *, query: str):
         
         await ctx.send(f'🔍 Testing stream cho: **{title}**')
         
-        # Lấy stream URL
         stream_url = await get_fresh_audio_url(video_url)
         if not stream_url:
             await ctx.send('❌ Không lấy được stream URL')
             return
         
         await ctx.send(f'📡 Stream URL: `{stream_url[:100]}...`')
-        
-        # Test stream
         await test_stream_url(stream_url, ctx)
         
     except Exception as e:
@@ -370,7 +551,6 @@ async def test_stream(ctx, *, query: str):
 
 @bot.command(name='voice_debug', help='Debug thông tin voice connection')
 async def voice_debug(ctx):
-    """Debug voice connection chi tiết"""
     vc = ctx.voice_client
     
     debug_info = []
@@ -388,7 +568,6 @@ async def voice_debug(ctx):
     else:
         debug_info.append("❌ No voice client")
     
-    # Kiểm tra user voice state
     if ctx.author.voice:
         debug_info.append(f"👤 User channel: {ctx.author.voice.channel.name}")
         debug_info.append(f"👥 Members in channel: {len(ctx.author.voice.channel.members)}")
@@ -399,7 +578,6 @@ async def voice_debug(ctx):
 
 @bot.command(name='force_reconnect', help='Buộc kết nối lại voice')
 async def force_reconnect(ctx):
-    """Force reconnect voice client"""
     if ctx.voice_client:
         await ctx.voice_client.disconnect()
         await asyncio.sleep(2)
@@ -412,7 +590,6 @@ async def force_reconnect(ctx):
 
 @bot.command(name='clear_cache', help='Xóa cache yt-dlp')
 async def clear_cache(ctx):
-    """Xóa cache yt-dlp"""
     import shutil
     import os
     
@@ -427,7 +604,6 @@ async def clear_cache(ctx):
     except Exception as e:
         await ctx.send(f'❌ Lỗi xóa cache: {str(e)}')
 
-# Error handling for commands
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
