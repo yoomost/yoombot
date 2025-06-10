@@ -4,7 +4,7 @@
 Lệnh phát nhạc bot:
 
 | Commands          | Nội dung |
-----------------------------------------
+|--------------------|-------------------|
 |  clear_cache       | Xóa cache yt-dlp  |
 |  debug             | Hiển thị thông tin debug  |
 |  ffmpeg_test       | Test FFmpeg  |
