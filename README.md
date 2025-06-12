@@ -27,27 +27,51 @@ Lệnh phát nhạc bot:
 Cấu trúc đường dẫn
 ---
 discord_bot/
+
 ├── data/
+
 │   ├── chat_history.db
+
 │   ├── queues.db
+
 │   └── yt_dlp_cache/
+
 ├── src/
+
 │   ├── __init__.py
+
 │   ├── music/
+
 │   │   ├── __init__.py
+
 │   │   ├── player.py
+
 │   │   └── utils.py
+
 │   ├── commands/
+
 │   │   ├── __init__.py
+
 │   │   ├── music_commands.py
+
 │   │   └── debug_commands.py
+
 │   ├── events/
+
 │   │   ├── __init__.py
+
 │   │   └── bot_events.py
+
 │   └── utils/
+
 │       ├── __init__.py
+
 │       └── helpers.py
+
 ├── main.py
+
 ├── config.py
+
 ├── database.py
+
 └── .env
