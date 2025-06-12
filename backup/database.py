@@ -25,13 +25,15 @@ def add_message(channel_id, message_id, role, content):
     conn.commit()
     conn.close()
 
-def get_history(channel_id, limit=10):
+def get_history(channel_id, limit=20):
     conn = sqlite3.connect(r'.\data\chat_history.db')
     c = conn.cursor()
-    c.execute("SELECT role, content FROM messages WHERE channel_id = ? ORDER BY timestamp DESC LIMIT ?", (str(channel_id), limit))
+    # Sửa đổi để lấy theo thứ tự thời gian tăng dần (cũ nhất đến mới nhất)
+    c.execute("SELECT role, content FROM messages WHERE channel_id = ? ORDER BY timestamp ASC LIMIT ?",
+              (str(channel_id), limit))
     history = [{"role": row[0], "content": row[1]} for row in c.fetchall()]
     conn.close()
-    return history[::-1]  # Reverse to chronological order
+    return history
 
 def add_to_queue(guild_id, url, audio_url, title, duration=0):
     conn = sqlite3.connect(r'.\data\queues.db')

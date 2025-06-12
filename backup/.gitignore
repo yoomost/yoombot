@@ -1,0 +1,19 @@
+# Ignore node_modules folder
+node_modules/
+
+# Ignore log files
+*.log
+
+# Ignore environment files
+.env
+
+# Ignore build outputs
+/build/
+
+# Ignore text
+yoombot.txt
+
+# Ignore cache
+*.db
+yt_dlp_cache/
+__pycache__/

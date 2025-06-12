@@ -1,0 +1,6 @@
+// Fill in and save this file as .env
+
+BOT_TOKEN=
+GROQ_API_KEY=
+CHANNEL_ID=
+WELCOME_CHANNEL_ID=
