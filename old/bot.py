@@ -6,7 +6,7 @@ import json
 import logging
 import asyncio
 import yt_dlp
-from config import BOT_TOKEN, GROQ_API_KEY, CHANNEL_ID, WELCOME_CHANNEL_ID
+from src.config import BOT_TOKEN, GROQ_API_KEY, CHANNEL_ID, WELCOME_CHANNEL_ID
 from database import init_db, add_message, get_history, get_queue, clear_queue
 from music_player import play_song, play_playlist, play_next, get_progress_bar
 
