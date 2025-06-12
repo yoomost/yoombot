@@ -38,8 +38,6 @@ discord_bot/
 
 ├── src/
 
-│   ├── __init__.py
-
 │   ├── music/
 
 │   │   ├── __init__.py
@@ -62,11 +60,13 @@ discord_bot/
 
 │   │   └── bot_events.py
 
-│   └── utils/
+│   ├── utils/
 
-│       ├── __init__.py
+│   │   ├── __init__.py
 
-│       └── helpers.py
+│   │   └── helpers.py
+
+│   └──__init__.py
 
 ├── main.py
 
