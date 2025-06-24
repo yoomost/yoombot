@@ -1,8 +1,16 @@
 import sqlite3
 
 def init_db():
-    # Chat history database
-    conn = sqlite3.connect(r'.\data\chat_history.db')
+    # Mental health chat history database
+    conn = sqlite3.connect(r'.\data\mental_chat_history.db')
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS messages
+                 (id INTEGER PRIMARY KEY, channel_id TEXT, message_id TEXT, role TEXT, content TEXT, timestamp DATETIME)''')
+    conn.commit()
+    conn.close()
+
+    # General chat history database
+    conn = sqlite3.connect(r'.\data\general_chat_history.db')
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS messages
                  (id INTEGER PRIMARY KEY, channel_id TEXT, message_id TEXT, role TEXT, content TEXT, timestamp DATETIME)''')
@@ -17,18 +25,40 @@ def init_db():
     conn.commit()
     conn.close()
 
-def add_message(channel_id, message_id, role, content):
-    conn = sqlite3.connect(r'.\data\chat_history.db')
+def clear_mental_chat_history():
+    conn = sqlite3.connect(r'.\data\mental_chat_history.db')
+    c = conn.cursor()
+    c.execute("DELETE FROM messages")
+    conn.commit()
+    conn.close()
+
+def clear_general_chat_history():
+    conn = sqlite3.connect(r'.\data\general_chat_history.db')
+    c = conn.cursor()
+    c.execute("DELETE FROM messages")
+    conn.commit()
+    conn.close()
+
+def clear_music_queue():
+    conn = sqlite3.connect(r'.\data\queues.db')
+    c = conn.cursor()
+    c.execute("DELETE FROM queues")
+    conn.commit()
+    conn.close()
+
+def add_message(channel_id, message_id, role, content, db_type):
+    db_path = r'.\data\mental_chat_history.db' if db_type == 'mental' else r'.\data\general_chat_history.db'
+    conn = sqlite3.connect(db_path)
     c = conn.cursor()
     c.execute("INSERT INTO messages (channel_id, message_id, role, content, timestamp) VALUES (?, ?, ?, ?, datetime('now'))",
               (str(channel_id), str(message_id), role, content))
     conn.commit()
     conn.close()
 
-def get_history(channel_id, limit=20):
-    conn = sqlite3.connect(r'.\data\chat_history.db')
+def get_history(channel_id, limit=20, db_type='mental'):
+    db_path = r'.\data\mental_chat_history.db' if db_type == 'mental' else r'.\data\general_chat_history.db'
+    conn = sqlite3.connect(db_path)
     c = conn.cursor()
-    # Sửa đổi để lấy theo thứ tự thời gian tăng dần (cũ nhất đến mới nhất)
     c.execute("SELECT role, content FROM messages WHERE channel_id = ? ORDER BY timestamp ASC LIMIT ?",
               (str(channel_id), limit))
     history = [{"role": row[0], "content": row[1]} for row in c.fetchall()]
@@ -50,7 +80,7 @@ def get_queue(guild_id):
     conn = sqlite3.connect(r'.\data\queues.db')
     c = conn.cursor()
     c.execute("SELECT url, audio_url, title, duration FROM queues WHERE guild_id = ? ORDER BY position", (str(guild_id),))
-    queue = [(row[0], row[1], row[2], row[3] or 0) for row in c.fetchall()]  # Default duration to 0 if None
+    queue = [(row[0], row[1], row[2], row[3] or 0) for row in c.fetchall()]
     conn.close()
     return queue
 

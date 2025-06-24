@@ -2,9 +2,9 @@ import discord
 from discord.ext import commands
 import logging
 import asyncio
-from config import CHANNEL_ID, WELCOME_CHANNEL_ID
+from config import MENTAL_CHANNEL_ID, GENERAL_CHANNEL_ID, WELCOME_CHANNEL_ID
 from database import get_history, add_message, get_queue
-from src.utils.helpers import get_groq_response
+from src.utils.helpers import get_groq_response, mental_rag
 
 def setup_events(bot, queues, loop_status):
     @bot.event
@@ -20,9 +20,18 @@ def setup_events(bot, queues, loop_status):
     async def on_message(message):
         if message.author == bot.user:
             return
-        if message.channel.id == CHANNEL_ID:
-            add_message(message.channel.id, message.id, "user", message.content)
-            response = await get_groq_response(message.channel.id, message.content)
+        if message.channel.id == MENTAL_CHANNEL_ID:
+            add_message(message.channel.id, message.id, "user", message.content, db_type='mental')
+            response = await get_groq_response(message.channel.id, message.content, mental_rag, db_type='mental')
+            if len(response) <= 2000:
+                await message.channel.send(response)
+            else:
+                chunks = [response[i:i+2000] for i in range(0, len(response), 2000)]
+                for chunk in chunks:
+                    await message.channel.send(chunk)
+        elif message.channel.id == GENERAL_CHANNEL_ID:
+            add_message(message.channel.id, message.id, "user", message.content, db_type='general')
+            response = await get_groq_response(message.channel.id, message.content, None, db_type='general')
             if len(response) <= 2000:
                 await message.channel.send(response)
             else:

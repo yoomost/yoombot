@@ -8,7 +8,8 @@ load_dotenv()
 BOT_TOKEN = os.getenv('BOT_TOKEN')
 GROQ_API_KEY = os.getenv('GROQ_API_KEY')
 try:
-    CHANNEL_ID = int(os.getenv('CHANNEL_ID'))
+    MENTAL_CHANNEL_ID = int(os.getenv('MENTAL_CHANNEL_ID'))
+    GENERAL_CHANNEL_ID = int(os.getenv('GENERAL_CHANNEL_ID'))
     WELCOME_CHANNEL_ID = int(os.getenv('WELCOME_CHANNEL_ID'))
 except (TypeError, ValueError):
-    raise ValueError("CHANNEL_ID and WELCOME_CHANNEL_ID must be valid numbers")
+    raise ValueError("MENTAL_CHANNEL_ID, GENERAL_CHANNEL_ID, and WELCOME_CHANNEL_ID must be valid numbers")

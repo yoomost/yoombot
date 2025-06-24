@@ -3,12 +3,13 @@ import requests
 import json
 import logging
 import asyncio
+import time
 from config import GROQ_API_KEY
 from database import get_history, add_message
-from src.utils.rag import RAG  # Import the new RAG module
+from src.utils.rag import RAG
 
-# Initialize RAG system
-rag = RAG(embed_model="all-MiniLM-L6-v2", index_path="./data/rag_index", doc_dir="./data/documents")
+# Initialize RAG for mental health channel only
+mental_rag = RAG(embed_model="all-MiniLM-L6-v2", index_path="./data/rag_index/mental", doc_dir="./data/documents/mental_counseling")
 
 async def safe_voice_connect(ctx, timeout=10, retries=3):
     if ctx.author.voice is None:
@@ -52,52 +53,91 @@ async def safe_voice_connect(ctx, timeout=10, retries=3):
     
     return None
 
-async def get_groq_response(channel_id, message):
-    # Lấy lịch sử trò chuyện từ CSDL
-    history = get_history(channel_id, limit=20)
-    
-    # Thêm tin nhắn người dùng hiện tại
+async def get_groq_response(channel_id, message, rag_instance=None, db_type='mental', retries=2):
+    history = get_history(channel_id, limit=20, db_type=db_type)
     history.append({"role": "user", "content": message})
     
-    # Retrieve relevant documents using RAG
-    try:
-        retrieved_docs = rag.retrieve(message, top_k=3)
-        context = "\n".join([f"Document {i+1}: {doc}" for i, doc in enumerate(retrieved_docs)])
-        if context:
-            context = f"Retrieved Context:\n{context}\n\nUser Query: {message}"
-        else:
-            context = message
-    except Exception as e:
-        logging.error(f"RAG retrieval error: {str(e)}")
-        context = message
+    context = message
+    if rag_instance:
+        try:
+            retrieved_docs = rag_instance.retrieve(message, top_k=3)
+            context = "\n".join([f"Document {i+1}: {doc}" for i, doc in enumerate(retrieved_docs)])
+            if context:
+                context = f"Retrieved Context:\n{context}\n\nUser Query: {message}"
+        except Exception as e:
+            logging.error(f"RAG retrieval error: {str(e)}")
     
-    # Tạo lịch sử đầy đủ với tin nhắn hệ thống và ngữ cảnh RAG
     full_history = [
-        {"role": "system", "content": "You are a helpful assistant. Use the provided context and maintain coherence with previous messages."},
+        {"role": "system", "content": "You are a helpful assistant. For the mental health channel, provide empathetic and professional counseling advice. For the general channel, offer accurate and informative responses. Use the provided context and maintain coherence with previous messages."},
         {"role": "user", "content": context}
-    ] + history[-5:]  # Limit history to last 5 messages to avoid token overflow
+    ] + history[-5:]
     
     url = "https://api.groq.com/openai/v1/chat/completions"
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {GROQ_API_KEY}"
     }
-    data = {
-        "model": "llama3-8b-8192",
-        "messages": full_history,
-        "max_tokens": 8192,
-        "stream": False,
-        "temperature": 0.7
-    }
+    models = ["llama3-70b-8192", "llama-3.1-8b-instant"]
     
-    try:
-        response = requests.post(url, headers=headers, data=json.dumps(data))
-        response.raise_for_status()
-        api_response = response.json()["choices"][0]["message"]["content"]
-        
-        # Lưu câu trả lời vào CSDL
-        add_message(channel_id, None, "assistant", api_response)
-        return api_response
-    except requests.exceptions.RequestException as e:
-        logging.error(f"Groq API error: {str(e)}")
-        return f"Error calling Groq API: {str(e)}"
+    for attempt in range(retries):
+        for model in models:
+            data = {
+                "model": model,
+                "messages": full_history,
+                "max_tokens": 8192,
+                "stream": True,
+                "temperature": 0.7
+            }
+            
+            try:
+                response = requests.post(url, headers=headers, data=json.dumps(data), timeout=10)
+                response.raise_for_status()
+                
+                raw_response = response.text
+                logging.info(f"Raw Groq API response: {raw_response[:500]}...")
+                
+                if not raw_response.strip():
+                    logging.error("Empty response from Groq API")
+                    if attempt < retries - 1:
+                        await asyncio.sleep(2)
+                        continue
+                    return "Error: Empty response from Groq API"
+                
+                api_response = ""
+                for line in raw_response.splitlines():
+                    if line.startswith("data: "):
+                        chunk = line[6:]
+                        if chunk == "[DONE]":
+                            break
+                        try:
+                            chunk_data = json.loads(chunk)
+                            if "choices" in chunk_data and chunk_data["choices"]:
+                                delta = chunk_data["choices"][0].get("delta", {})
+                                content = delta.get("content", "")
+                                if content:
+                                    api_response += content
+                        except json.JSONDecodeError as e:
+                            logging.error(f"Chunk decode error: {str(e)}")
+                
+                if api_response:
+                    add_message(channel_id, None, "assistant", api_response, db_type)
+                    return api_response
+                else:
+                    logging.error("No content in streaming response")
+                    if attempt < retries - 1:
+                        await asyncio.sleep(2)
+                        continue
+                    return "Error: No content received from Groq API"
+                
+            except requests.exceptions.RequestException as e:
+                logging.error(f"Groq API error (model: {model}, attempt: {attempt+1}): {str(e)}")
+                if "rate_limit" in str(e).lower() or isinstance(e, requests.exceptions.HTTPError) and e.response.status_code == 429:
+                    if attempt < retries - 1:
+                        await asyncio.sleep(5)
+                        continue
+                if attempt < retries - 1 and model == models[0]:
+                    logging.info(f"Retrying with fallback model: {models[1]}")
+                    continue
+                return f"Error calling Groq API: {str(e)}"
+    
+    return "Error: Failed to get response from Groq API after retries"

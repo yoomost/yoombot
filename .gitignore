@@ -12,7 +12,7 @@ node_modules/
 ai-chatbot/
 
 # Ignore text
-yoombot.txt
+/data
 
 # Ignore cache
 *.db
