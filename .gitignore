@@ -9,6 +9,7 @@ node_modules/
 
 # Ignore build outputs
 /build/
+ai-chatbot/
 
 # Ignore text
 yoombot.txt

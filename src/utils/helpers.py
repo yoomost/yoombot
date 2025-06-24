@@ -5,6 +5,10 @@ import logging
 import asyncio
 from config import GROQ_API_KEY
 from database import get_history, add_message
+from src.utils.rag import RAG  # Import the new RAG module
+
+# Initialize RAG system
+rag = RAG(embed_model="all-MiniLM-L6-v2", index_path="./data/rag_index", doc_dir="./data/documents")
 
 async def safe_voice_connect(ctx, timeout=10, retries=3):
     if ctx.author.voice is None:
@@ -49,14 +53,29 @@ async def safe_voice_connect(ctx, timeout=10, retries=3):
     return None
 
 async def get_groq_response(channel_id, message):
-    # Lấy lịch sử trò chuyện từ CSDL, tăng giới hạn lên 20 để có ngữ cảnh đầy đủ hơn
+    # Lấy lịch sử trò chuyện từ CSDL
     history = get_history(channel_id, limit=20)
     
     # Thêm tin nhắn người dùng hiện tại
     history.append({"role": "user", "content": message})
     
-    # Tạo lịch sử đầy đủ với tin nhắn hệ thống
-    full_history = [{"role": "system", "content": "You are a helpful assistant. Maintain context from previous messages to provide coherent responses."}] + history
+    # Retrieve relevant documents using RAG
+    try:
+        retrieved_docs = rag.retrieve(message, top_k=3)
+        context = "\n".join([f"Document {i+1}: {doc}" for i, doc in enumerate(retrieved_docs)])
+        if context:
+            context = f"Retrieved Context:\n{context}\n\nUser Query: {message}"
+        else:
+            context = message
+    except Exception as e:
+        logging.error(f"RAG retrieval error: {str(e)}")
+        context = message
+    
+    # Tạo lịch sử đầy đủ với tin nhắn hệ thống và ngữ cảnh RAG
+    full_history = [
+        {"role": "system", "content": "You are a helpful assistant. Use the provided context and maintain coherence with previous messages."},
+        {"role": "user", "content": context}
+    ] + history[-5:]  # Limit history to last 5 messages to avoid token overflow
     
     url = "https://api.groq.com/openai/v1/chat/completions"
     headers = {
@@ -68,7 +87,7 @@ async def get_groq_response(channel_id, message):
         "messages": full_history,
         "max_tokens": 8192,
         "stream": False,
-        "temperature": 0.7  # Thêm temperature để tăng tính tự nhiên
+        "temperature": 0.7
     }
     
     try:
