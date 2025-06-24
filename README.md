@@ -32,6 +32,8 @@ discord_bot/
 
 │   ├── documents/          # Chứa file PDF, JSON và JSONL cho mô hình RAG
 
+│   │   └── mental_counseling/
+
 │   ├── chat_history.db
 
 │   ├── queues.db
@@ -66,7 +68,9 @@ discord_bot/
 
 │   │   ├── __init__.py
 
-│   │   └── helpers.py
+│   │   ├── helpers.py
+
+│   │   └── rag.py
 
 │   └──__init__.py
 
