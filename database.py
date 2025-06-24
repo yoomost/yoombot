@@ -28,6 +28,9 @@ def init_db():
 def clear_mental_chat_history():
     conn = sqlite3.connect(r'.\data\mental_chat_history.db')
     c = conn.cursor()
+    # Ensure table exists
+    c.execute('''CREATE TABLE IF NOT EXISTS messages
+                 (id INTEGER PRIMARY KEY, channel_id TEXT, message_id TEXT, role TEXT, content TEXT, timestamp DATETIME)''')
     c.execute("DELETE FROM messages")
     conn.commit()
     conn.close()
@@ -35,6 +38,9 @@ def clear_mental_chat_history():
 def clear_general_chat_history():
     conn = sqlite3.connect(r'.\data\general_chat_history.db')
     c = conn.cursor()
+    # Ensure table exists
+    c.execute('''CREATE TABLE IF NOT EXISTS messages
+                 (id INTEGER PRIMARY KEY, channel_id TEXT, message_id TEXT, role TEXT, content TEXT, timestamp DATETIME)''')
     c.execute("DELETE FROM messages")
     conn.commit()
     conn.close()
@@ -42,6 +48,9 @@ def clear_general_chat_history():
 def clear_music_queue():
     conn = sqlite3.connect(r'.\data\queues.db')
     c = conn.cursor()
+    # Ensure table exists
+    c.execute('''CREATE TABLE IF NOT EXISTS queues
+                 (id INTEGER PRIMARY KEY, guild_id TEXT, url TEXT, audio_url TEXT, title TEXT, duration INTEGER, position INTEGER)''')
     c.execute("DELETE FROM queues")
     conn.commit()
     conn.close()

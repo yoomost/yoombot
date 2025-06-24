@@ -8,7 +8,7 @@ from src.commands.debug_commands import setup_debug_commands
 from database import init_db, clear_mental_chat_history, clear_general_chat_history, clear_music_queue
 
 # Set up logging
-logging.basicConfig(filename=r'./data/bot.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(filename=r'.\data\bot.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Discord bot setup
 intents = discord.Intents.default()
@@ -21,15 +21,22 @@ queues = {}
 loop_status = {}
 
 def main():
-    # Clear data on startup
-    clear_mental_chat_history()
-    clear_general_chat_history()
-    clear_music_queue()
-    queues.clear()
-    loop_status.clear()
-    logging.info("Cleared mental chat history, general chat history, music queues, and in-memory data on startup")
+    # Initialize databases first
+    init_db()
+    logging.info("Initialized mental_chat_history.db, general_chat_history.db, and queues.db")
 
-    init_db()  # Initialize databases
+    # Clear data on startup
+    try:
+        clear_mental_chat_history()
+        clear_general_chat_history()
+        clear_music_queue()
+        queues.clear()
+        loop_status.clear()
+        logging.info("Cleared mental chat history, general chat history, music queues, and in-memory data")
+    except Exception as e:
+        logging.error(f"Error clearing data on startup: {str(e)}")
+        raise
+
     setup_events(bot, queues, loop_status)  # Set up events
     setup_music_commands(bot, queues, loop_status)  # Set up music commands
     setup_debug_commands(bot, queues)  # Set up debug commands
