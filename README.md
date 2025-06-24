@@ -30,6 +30,8 @@ discord_bot/
 
 ├── data/
 
+│   ├── documents/          # Chứa file PDF, JSON và JSONL cho mô hình RAG
+
 │   ├── chat_history.db
 
 │   ├── queues.db
