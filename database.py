@@ -25,6 +25,14 @@ def init_db():
     conn.commit()
     conn.close()
 
+    # News articles database
+    conn = sqlite3.connect(r'.\data\news.db')
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS news_articles
+                 (id INTEGER PRIMARY KEY, article_id TEXT UNIQUE, title TEXT, published DATETIME)''')
+    conn.commit()
+    conn.close()
+
 def clear_mental_chat_history():
     conn = sqlite3.connect(r'.\data\mental_chat_history.db')
     c = conn.cursor()
@@ -55,6 +63,16 @@ def clear_music_queue():
     conn.commit()
     conn.close()
 
+def clear_news_articles():
+    conn = sqlite3.connect(r'.\data\news.db')
+    c = conn.cursor()
+    # Ensure table exists
+    c.execute('''CREATE TABLE IF NOT EXISTS news_articles
+                 (id INTEGER PRIMARY KEY, article_id TEXT UNIQUE, title TEXT, published DATETIME)''')
+    c.execute("DELETE FROM news_articles")
+    conn.commit()
+    conn.close()
+
 def add_message(channel_id, message_id, role, content, db_type):
     db_path = r'.\data\mental_chat_history.db' if db_type == 'mental' else r'.\data\general_chat_history.db'
     conn = sqlite3.connect(db_path)
@@ -73,6 +91,25 @@ def get_history(channel_id, limit=20, db_type='mental'):
     history = [{"role": row[0], "content": row[1]} for row in c.fetchall()]
     conn.close()
     return history
+
+def add_news_article(article_id, title, published):
+    conn = sqlite3.connect(r'.\data\news.db')
+    c = conn.cursor()
+    try:
+        c.execute("INSERT INTO news_articles (article_id, title, published) VALUES (?, ?, ?)",
+                  (article_id, title, published))
+        conn.commit()
+    except sqlite3.IntegrityError:
+        pass  # Article already exists
+    conn.close()
+
+def is_article_sent(article_id):
+    conn = sqlite3.connect(r'.\data\news.db')
+    c = conn.cursor()
+    c.execute("SELECT 1 FROM news_articles WHERE article_id = ?", (article_id,))
+    exists = c.fetchone() is not None
+    conn.close()
+    return exists
 
 def add_to_queue(guild_id, url, audio_url, title, duration=0):
     conn = sqlite3.connect(r'.\data\queues.db')

@@ -11,5 +11,6 @@ try:
     MENTAL_CHANNEL_ID = int(os.getenv('MENTAL_CHANNEL_ID'))
     GENERAL_CHANNEL_ID = int(os.getenv('GENERAL_CHANNEL_ID'))
     WELCOME_CHANNEL_ID = int(os.getenv('WELCOME_CHANNEL_ID'))
+    NEWS_CHANNEL_ID = int(os.getenv('NEWS_CHANNEL_ID'))
 except (TypeError, ValueError):
-    raise ValueError("MENTAL_CHANNEL_ID, GENERAL_CHANNEL_ID, and WELCOME_CHANNEL_ID must be valid numbers")
+    raise ValueError("MENTAL_CHANNEL_ID, GENERAL_CHANNEL_ID, WELCOME_CHANNEL_ID, and NEWS_CHANNEL_ID must be valid numbers")
