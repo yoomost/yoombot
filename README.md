@@ -109,7 +109,7 @@ yoombot/
 
 │   │   ├── rag.py
 
-│   │   └── x_images.py
+│   │   └── pixiv.py
 
 │   └──__init__.py
 
