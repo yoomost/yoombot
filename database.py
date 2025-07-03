@@ -34,6 +34,14 @@ def init_db():
     conn.commit()
     conn.close()
 
+    # Pixiv priorities database
+    conn = sqlite3.connect(r'.\data\pixiv.db')
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS pixiv_priorities
+                 (type TEXT, value TEXT, PRIMARY KEY (type, value))''')
+    conn.commit()
+    conn.close()
+
     # X users database
     conn = sqlite3.connect(r'.\data\x_users.db')
     c = conn.cursor()

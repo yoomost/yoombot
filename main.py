@@ -8,7 +8,7 @@ from src.commands.music_commands import setup_music_commands
 from src.commands.debug_commands import setup_debug_commands
 from database import init_db, clear_mental_chat_history, clear_general_chat_history, clear_music_queue, clear_news_articles
 from src.utils.news import news_task
-from src.utils.x_images import x_images_task
+from src.utils.pixiv import setup as x_images_setup
 
 # Set up logging
 logging.basicConfig(filename=r'.\data\bot.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -66,7 +66,7 @@ async def setup_tasks():
 
     # Tạo các task
     bot.loop.create_task(news_task(bot))
-    bot.loop.create_task(x_images_task(bot))
+    bot.loop.create_task(x_images_setup(bot))
 
 async def main():
     """Hàm main bất đồng bộ để chạy bot."""

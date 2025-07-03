@@ -25,7 +25,18 @@ Chatbot: chatbot sẽ tự động đọc tin nhắn trong kênh có ID được
 
 Các chức năng tự động sẽ thực hiện tự động khi khởi chạy chương trình.
 
-Danh sách lệnh của chức năng phát nhạc (!):
+Danh sách lệnh chức năng đăng ảnh (!):
+
+| Commands          | Nội dung |
+|--------------------|-------------------|
+|  add_artist        | Thêm artist muốn theo dõi  |
+|  remove_artist     | Xoá artist muốn theo dõi  |
+|  add_tag           | Thêm tag muốn theo dõi  |
+|  remove_tag        | Xoá tag muốn theo dõi  |
+|  post_image_now    | Xuất thêm 10 ảnh  |
+---------------------------------------------------
+
+Danh sách lệnh chức năng phát nhạc (!):
 
 | Commands          | Nội dung |
 |--------------------|-------------------|

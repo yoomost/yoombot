@@ -61,7 +61,7 @@ async def fetch_and_post_news(bot):
 
     # Kiểm tra/tạo bảng news và sửa đổi cấu trúc nếu cần
     try:
-        conn = get_db_connection()
+        conn = get_db_connection("news.db")
         cursor = conn.cursor()
         # Kiểm tra cấu trúc bảng
         cursor.execute("PRAGMA table_info(news)")
@@ -188,3 +188,7 @@ async def news_task(bot):
             continue
         logging.info("Hoàn thành chu kỳ lấy tin, chờ 15 phút")
         await asyncio.sleep(910)
+
+async def setup(bot):
+    """Thiết lập tác vụ tin tức."""
+    bot.loop.create_task(news_task(bot))

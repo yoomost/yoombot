@@ -1,3 +1,4 @@
+pipreqs
 aiohttp==3.11.10
 datasets==3.6.0
 discord.py==2.5.2
