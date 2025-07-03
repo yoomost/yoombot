@@ -1,6 +1,7 @@
 import sqlite3
 
 def init_db():
+    """Khởi tạo tất cả các cơ sở dữ liệu và bảng cần thiết."""
     # Mental health chat history database
     conn = sqlite3.connect(r'.\data\mental_chat_history.db')
     c = conn.cursor()
@@ -33,7 +34,20 @@ def init_db():
     conn.commit()
     conn.close()
 
+    # X users database
+    conn = sqlite3.connect(r'.\data\x_users.db')
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS x_users
+                 (username TEXT PRIMARY KEY)''')
+    conn.commit()
+    conn.close()
+
+def get_db_connection(db_name="queues.db"):
+    """Trả về kết nối đến cơ sở dữ liệu được chỉ định."""
+    return sqlite3.connect(rf'.\data\{db_name}')
+
 def clear_mental_chat_history():
+    """Xóa lịch sử trò chuyện sức khỏe tinh thần."""
     conn = sqlite3.connect(r'.\data\mental_chat_history.db')
     c = conn.cursor()
     # Ensure table exists
@@ -44,6 +58,7 @@ def clear_mental_chat_history():
     conn.close()
 
 def clear_general_chat_history():
+    """Xóa lịch sử trò chuyện chung."""
     conn = sqlite3.connect(r'.\data\general_chat_history.db')
     c = conn.cursor()
     # Ensure table exists
@@ -54,6 +69,7 @@ def clear_general_chat_history():
     conn.close()
 
 def clear_music_queue():
+    """Xóa hàng đợi nhạc."""
     conn = sqlite3.connect(r'.\data\queues.db')
     c = conn.cursor()
     # Ensure table exists
@@ -64,6 +80,7 @@ def clear_music_queue():
     conn.close()
 
 def clear_news_articles():
+    """Xóa bài viết tin tức."""
     conn = sqlite3.connect(r'.\data\news.db')
     c = conn.cursor()
     # Ensure table exists
@@ -73,7 +90,19 @@ def clear_news_articles():
     conn.commit()
     conn.close()
 
+def clear_x_users():
+    """Xóa danh sách người dùng X được theo dõi."""
+    conn = sqlite3.connect(r'.\data\x_users.db')
+    c = conn.cursor()
+    # Ensure table exists
+    c.execute('''CREATE TABLE IF NOT EXISTS x_users
+                 (username TEXT PRIMARY KEY)''')
+    c.execute("DELETE FROM x_users")
+    conn.commit()
+    conn.close()
+
 def add_message(channel_id, message_id, role, content, db_type):
+    """Thêm tin nhắn vào lịch sử trò chuyện."""
     db_path = r'.\data\mental_chat_history.db' if db_type == 'mental' else r'.\data\general_chat_history.db'
     conn = sqlite3.connect(db_path)
     c = conn.cursor()
@@ -83,6 +112,7 @@ def add_message(channel_id, message_id, role, content, db_type):
     conn.close()
 
 def get_history(channel_id, limit=20, db_type='mental'):
+    """Lấy lịch sử trò chuyện."""
     db_path = r'.\data\mental_chat_history.db' if db_type == 'mental' else r'.\data\general_chat_history.db'
     conn = sqlite3.connect(db_path)
     c = conn.cursor()
@@ -93,6 +123,7 @@ def get_history(channel_id, limit=20, db_type='mental'):
     return history
 
 def add_news_article(article_id, title, published):
+    """Thêm bài viết tin tức."""
     conn = sqlite3.connect(r'.\data\news.db')
     c = conn.cursor()
     try:
@@ -104,6 +135,7 @@ def add_news_article(article_id, title, published):
     conn.close()
 
 def is_article_sent(article_id):
+    """Kiểm tra xem bài viết đã được gửi chưa."""
     conn = sqlite3.connect(r'.\data\news.db')
     c = conn.cursor()
     c.execute("SELECT 1 FROM news_articles WHERE article_id = ?", (article_id,))
@@ -112,6 +144,7 @@ def is_article_sent(article_id):
     return exists
 
 def add_to_queue(guild_id, url, audio_url, title, duration=0):
+    """Thêm bài hát vào hàng đợi."""
     conn = sqlite3.connect(r'.\data\queues.db')
     c = conn.cursor()
     c.execute("SELECT MAX(position) FROM queues WHERE guild_id = ?", (str(guild_id),))
@@ -123,6 +156,7 @@ def add_to_queue(guild_id, url, audio_url, title, duration=0):
     conn.close()
 
 def get_queue(guild_id):
+    """Lấy hàng đợi theo guild_id."""
     conn = sqlite3.connect(r'.\data\queues.db')
     c = conn.cursor()
     c.execute("SELECT url, audio_url, title, duration FROM queues WHERE guild_id = ? ORDER BY position", (str(guild_id),))
@@ -131,6 +165,7 @@ def get_queue(guild_id):
     return queue
 
 def remove_from_queue(guild_id, position):
+    """Xóa bài hát khỏi hàng đợi theo vị trí."""
     conn = sqlite3.connect(r'.\data\queues.db')
     c = conn.cursor()
     c.execute("DELETE FROM queues WHERE guild_id = ? AND position = ?", (str(guild_id), position))
@@ -139,6 +174,7 @@ def remove_from_queue(guild_id, position):
     conn.close()
 
 def clear_queue(guild_id):
+    """Xóa toàn bộ hàng đợi của guild_id."""
     conn = sqlite3.connect(r'.\data\queues.db')
     c = conn.cursor()
     c.execute("DELETE FROM queues WHERE guild_id = ?", (str(guild_id),))
