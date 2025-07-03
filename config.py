@@ -17,4 +17,3 @@ try:
 except (TypeError, ValueError):
     raise ValueError("MENTAL_CHANNEL_ID, GENERAL_CHANNEL_ID, WELCOME_CHANNEL_ID, IMAGE_CHANNEL_ID, and NEWS_CHANNEL_ID must be valid numbers")
 
-PIXIV_REFRESH_TOKEN = "R6r_5XuFQxGP5p01x-VGaLmQp30eyB0lAO9pxlR8ePk"
