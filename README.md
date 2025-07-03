@@ -4,8 +4,11 @@
 Hướng dẫn cài đặt
 ---
 1. Clone repo về máy và cài đặt requirements.txt.
-2. Tạo file .env bao gồm: BOT_TOKEN, GROQ_API_KEY, PIXIV_REFRESH_TOKEN (phải ghi, nhưng có thể để trống) và các ID channel discord bao gồm 
-MENTAL_CHANNEL_ID, GENERAL_CHANNEL_ID, NEWS_CHANNEL_ID, IMAGE_CHANNEL_ID, WELCOME_CHANNEL_ID.
+2. Tạo file .env bao gồm: 
+- BOT_TOKEN, GROQ_API_KEY (cho chatbot từ Groq API)
+- REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USER_AGENT (từ việc [tạo reddit app](https://www.reddit.com/prefs/apps))
+- PIXIV_REFRESH_TOKEN (phải ghi, nhưng có thể để trống) 
+- ID channel discord: MENTAL_CHANNEL_ID, GENERAL_CHANNEL_ID, NEWS_CHANNEL_ID, IMAGE_CHANNEL_ID, WELCOME_CHANNEL_ID.
 3. Lưu các file PDF cần thiết vào data/documents/mental_counseling/ để chạy chatbot tư vấn tâm lý.
 4. Chạy file main.py.
 5. Khi chạy lần đầu, terminal sẽ yêu cầu đăng nhập vào pixiv. Hãy làm theo các bước [như sau](https://gist.github.com/ZipFile/c9ebedb224406f4f11845ab700124362)
@@ -16,8 +19,9 @@ Chức năng (WIP)
 1. Tự động hiển thị thông báo chào mừng khi có người join server.
 2. Phát nhạc từ Youtube thông qua link, tên bài hát hay link playlist.
 3. Tự động đăng báo mới từ VnExpress mỗi 15 phút.
-4. Tự động đăng hình từ Home của tài khoản đăng nhập pixiv.
-5. Chatbot AI, bao gồm chatbot tư vấn tâm lý và chatbot tổng hợp
+4. Tự động đăng hình Recommended của tài khoản đăng nhập pixiv, có thể thay đổi theo artist hay tag.
+5. Tự động đăng hình sắp xếp theo Hot trên subreddit you-know-which, có thể chọn nguồn từ user bất kì trong subreddit.
+6. Chatbot AI, bao gồm chatbot tư vấn tâm lý và chatbot tổng hợp
 
 Hướng dẫn sử dụng
 ---
@@ -31,6 +35,8 @@ Danh sách lệnh chức năng đăng ảnh (!):
 |--------------------|-------------------|
 |  add_artist        | Thêm artist muốn theo dõi  |
 |  remove_artist     | Xoá artist muốn theo dõi  |
+|  add_reddit_user        | Thêm user muốn theo dõi  |
+|  remove_reddit_user     | Xoá user muốn theo dõi  |
 |  add_tag           | Thêm tag muốn theo dõi  |
 |  remove_tag        | Xoá tag muốn theo dõi  |
 |  post_image_now    | Xuất thêm 10 ảnh  |
