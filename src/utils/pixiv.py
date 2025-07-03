@@ -120,11 +120,11 @@ class PixivCog(commands.Cog):
             else:
                 other_images.append(illust)
 
-        prioritized_images = artist_images[:10]
+        prioritized_images = artist_images[:5]
         if len(prioritized_images) < 10:
-            prioritized_images.extend(tag_images[:10 - len(prioritized_images)])
+            prioritized_images.extend(tag_images[:5 - len(prioritized_images)])
         if len(prioritized_images) < 10:
-            prioritized_images.extend(other_images[:10 - len(prioritized_images)])
+            prioritized_images.extend(other_images[:5 - len(prioritized_images)])
 
         sent_count = 0
         headers = {
@@ -133,7 +133,7 @@ class PixivCog(commands.Cog):
             'Accept': 'image/*'
         }
         async with aiohttp.ClientSession(headers=headers) as session:
-            for idx, illust in enumerate(prioritized_images[:10]):
+            for idx, illust in enumerate(prioritized_images[:5]):
                 try:
                     # Log chi tiết cấu trúc dữ liệu
                     logging.debug(f"Chi tiết tác phẩm {illust.title}: keys={illust.keys()}")

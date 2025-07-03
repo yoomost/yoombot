@@ -50,6 +50,14 @@ def init_db():
     conn.commit()
     conn.close()
 
+    # Reddit priorities database
+    conn = sqlite3.connect(r'.\data\reddit.db')
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS reddit_priorities
+                 (type TEXT, value TEXT, PRIMARY KEY (type, value))''')
+    conn.commit()
+    conn.close()
+
 def get_db_connection(db_name="queues.db"):
     """Trả về kết nối đến cơ sở dữ liệu được chỉ định."""
     return sqlite3.connect(rf'.\data\{db_name}')
@@ -58,7 +66,6 @@ def clear_mental_chat_history():
     """Xóa lịch sử trò chuyện sức khỏe tinh thần."""
     conn = sqlite3.connect(r'.\data\mental_chat_history.db')
     c = conn.cursor()
-    # Ensure table exists
     c.execute('''CREATE TABLE IF NOT EXISTS messages
                  (id INTEGER PRIMARY KEY, channel_id TEXT, message_id TEXT, role TEXT, content TEXT, timestamp DATETIME)''')
     c.execute("DELETE FROM messages")
@@ -69,7 +76,6 @@ def clear_general_chat_history():
     """Xóa lịch sử trò chuyện chung."""
     conn = sqlite3.connect(r'.\data\general_chat_history.db')
     c = conn.cursor()
-    # Ensure table exists
     c.execute('''CREATE TABLE IF NOT EXISTS messages
                  (id INTEGER PRIMARY KEY, channel_id TEXT, message_id TEXT, role TEXT, content TEXT, timestamp DATETIME)''')
     c.execute("DELETE FROM messages")
@@ -80,7 +86,6 @@ def clear_music_queue():
     """Xóa hàng đợi nhạc."""
     conn = sqlite3.connect(r'.\data\queues.db')
     c = conn.cursor()
-    # Ensure table exists
     c.execute('''CREATE TABLE IF NOT EXISTS queues
                  (id INTEGER PRIMARY KEY, guild_id TEXT, url TEXT, audio_url TEXT, title TEXT, duration INTEGER, position INTEGER)''')
     c.execute("DELETE FROM queues")
@@ -91,7 +96,6 @@ def clear_news_articles():
     """Xóa bài viết tin tức."""
     conn = sqlite3.connect(r'.\data\news.db')
     c = conn.cursor()
-    # Ensure table exists
     c.execute('''CREATE TABLE IF NOT EXISTS news_articles
                  (id INTEGER PRIMARY KEY, article_id TEXT UNIQUE, title TEXT, published DATETIME)''')
     c.execute("DELETE FROM news_articles")
@@ -102,10 +106,19 @@ def clear_x_users():
     """Xóa danh sách người dùng X được theo dõi."""
     conn = sqlite3.connect(r'.\data\x_users.db')
     c = conn.cursor()
-    # Ensure table exists
     c.execute('''CREATE TABLE IF NOT EXISTS x_users
                  (username TEXT PRIMARY KEY)''')
     c.execute("DELETE FROM x_users")
+    conn.commit()
+    conn.close()
+
+def clear_reddit_priorities():
+    """Xóa danh sách ưu tiên Reddit."""
+    conn = sqlite3.connect(r'.\data\reddit.db')
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS reddit_priorities
+                 (type TEXT, value TEXT, PRIMARY KEY (type, value))''')
+    c.execute("DELETE FROM reddit_priorities")
     conn.commit()
     conn.close()
 

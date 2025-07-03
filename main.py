@@ -9,6 +9,7 @@ from src.commands.debug_commands import setup_debug_commands
 from database import init_db, clear_mental_chat_history, clear_general_chat_history, clear_music_queue, clear_news_articles
 from src.utils.news import news_task
 from src.utils.pixiv import setup as x_images_setup
+from src.utils.reddit import setup as reddit_images_setup
 
 # Set up logging
 logging.basicConfig(filename=r'.\data\bot.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -45,7 +46,7 @@ async def on_ready():
 async def setup_tasks():
     """Khởi tạo các task bất đồng bộ."""
     init_db()
-    logging.info("Initialized mental_chat_history.db, general_chat_history.db, queues.db, news.db, and x_users.db")
+    logging.info("Initialized mental_chat_history.db, general_chat_history.db, queues.db, news.db, x_users.db, and reddit.db")
 
     try:
         clear_mental_chat_history()
@@ -67,6 +68,7 @@ async def setup_tasks():
     # Tạo các task
     bot.loop.create_task(news_task(bot))
     bot.loop.create_task(x_images_setup(bot))
+    bot.loop.create_task(reddit_images_setup(bot))
 
 async def main():
     """Hàm main bất đồng bộ để chạy bot."""
