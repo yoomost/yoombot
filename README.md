@@ -1,7 +1,31 @@
 # yoombot
 [To-do list](https://docs.google.com/spreadsheets/d/1bn4rU957q-AAq0J2euaXHhaUvOfMbPnhTEufp4CEu5U/edit?usp=sharing)
 
-Lệnh phát nhạc bot:
+Hướng dẫn cài đặt
+---
+1. Clone repo về máy và cài đặt requirements.txt.
+2. Tạo file .env bao gồm: BOT_TOKEN, GROQ_API_KEY, PIXIV_REFRESH_TOKEN (phải ghi, nhưng có thể để trống) và các ID channel discord bao gồm 
+MENTAL_CHANNEL_ID, GENERAL_CHANNEL_ID, NEWS_CHANNEL_ID, IMAGE_CHANNEL_ID, WELCOME_CHANNEL_ID.
+3. Lưu các file PDF cần thiết vào data/documents/mental_counseling/ để chạy chatbot tư vấn tâm lý.
+4. Chạy file main.py.
+5. Khi chạy lần đầu, terminal sẽ yêu cầu đăng nhập vào pixiv. Hãy làm theo các bước [như sau](https://gist.github.com/ZipFile/c9ebedb224406f4f11845ab700124362)
+ để hoàn tất việc đăng nhập. Key sẽ được tự động lưu vào config.py và những lần chạy sau sẽ không cần đăng nhập lại.
+
+Chức năng (WIP)
+---
+1. Tự động hiển thị thông báo chào mừng khi có người join server.
+2. Phát nhạc từ Youtube thông qua link, tên bài hát hay link playlist.
+3. Tự động đăng báo mới từ VnExpress mỗi 15 phút.
+4. Tự động đăng hình từ Home của tài khoản đăng nhập pixiv.
+5. Chatbot AI, bao gồm chatbot tư vấn tâm lý và chatbot tổng hợp
+
+Hướng dẫn sử dụng
+---
+Chatbot: chatbot sẽ tự động đọc tin nhắn trong kênh có ID được ghi trong .env và phản hồi, ngoài ra sẽ không phản hồi trên kênh nào khác.
+
+Các chức năng tự động sẽ thực hiện tự động khi khởi chạy chương trình.
+
+Danh sách lệnh của chức năng phát nhạc (!):
 
 | Commands          | Nội dung |
 |--------------------|-------------------|
@@ -21,12 +45,12 @@ Lệnh phát nhạc bot:
 |  skip              | Bỏ qua bài hát hiện tại  |
 |  stop              | Dừng phát nhạc và xóa queue  |
 |  test_stream       | Test stream URL cho debug  |
-|  voice_debug       | Debug thông tin voice connectio|
+|  voice_debug       | Debug thông tin voice connection |
 -------------------------------------------------------
 
 Cấu trúc đường dẫn
 ---
-discord_bot/
+yoombot/
 
 ├── data/
 
@@ -69,6 +93,10 @@ discord_bot/
 │   │   ├── __init__.py
 
 │   │   ├── helpers.py
+
+│   │   ├── news.py
+
+│   │   ├── rag.py
 
 │   │   └── rag.py
 
