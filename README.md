@@ -98,7 +98,7 @@ yoombot/
 
 │   │   ├── rag.py
 
-│   │   └── rag.py
+│   │   └── x_images.py
 
 │   └──__init__.py
 
