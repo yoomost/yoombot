@@ -9,8 +9,8 @@
       * `BOT_TOKEN`, `GROQ_API_KEY` (cho chatbot từ Groq API)
       * `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET`, `REDDIT_USER_AGENT` (từ việc [tạo reddit app](https://www.reddit.com/prefs/apps))
       * `PIXIV_REFRESH_TOKEN` (phải ghi, nhưng có thể để trống)
-      * [cite\_start]ID channel discord: `MENTAL_CHANNEL_ID`, `GENERAL_CHANNEL_ID`, `NEWS_CHANNEL_ID`, `IMAGE_CHANNEL_ID`, `WELCOME_CHANNEL_ID` [cite: 2][cite\_start], `WIKI_CHANNEL_ID` [cite: 5][cite\_start], `EDUCATIONAL_CHANNEL_ID`[cite: 5].
-        [cite\_start]Thay các ID trên bằng ID thực tế của các kênh trong server Discord của bạn[cite: 5].
+      * ID channel discord: `MENTAL_CHANNEL_ID`, `GENERAL_CHANNEL_ID`, `NEWS_CHANNEL_ID`, `IMAGE_CHANNEL_ID`, `WELCOME_CHANNEL_ID` [cite: 2], `WIKI_CHANNEL_ID` [cite: 5], `EDUCATIONAL_CHANNEL_ID`[cite: 5].
+        Thay các ID trên bằng ID thực tế của các kênh trong server Discord của bạn[cite: 5].
 3.  Lưu các file PDF cần thiết vào `data/documents/mental_counseling/` để chạy chatbot tư vấn tâm lý.
 4.  Chạy file `main.py`.
 5.  Khi chạy lần đầu, terminal sẽ yêu cầu đăng nhập vào pixiv. Hãy làm theo các bước [như sau](https://gist.github.com/ZipFile/c9ebedb224406f4f11845ab700124362) để hoàn tất việc đăng nhập. Key sẽ được tự động lưu vào `config.py` và những lần chạy sau sẽ không cần đăng nhập lại.
@@ -24,7 +24,7 @@
 4.  Tự động đăng hình Recommended của tài khoản đăng nhập pixiv, có thể thay đổi theo artist hay tag.
 5.  Tự động đăng hình sắp xếp theo Hot trên subreddit you-know-which, có thể chọn nguồn từ user bất kì trong subreddit.
 6.  Chatbot AI, bao gồm chatbot tư vấn tâm lý và chatbot tổng hợp.
-7.  [cite\_start]Hỗ trợ tra cứu tài liệu học tập và giải bài tập[cite: 2].
+7.  Hỗ trợ tra cứu tài liệu học tập và giải bài tập[cite: 2].
 
 ## Hướng dẫn sử dụng
 
@@ -68,15 +68,15 @@ Các chức năng tự động sẽ thực hiện tự động khi khởi chạy
 
 ### Danh sách lệnh học tập (\!):
 
-[cite\_start]Các lệnh học tập được thiết kế để hoạt động trong các kênh cụ thể[cite: 3].
+Các lệnh học tập được thiết kế để hoạt động trong các kênh cụ thể[cite: 3].
 
 #### 1\. Lệnh `!khan <chủ đề>`
 
-  * [cite\_start]**Mô tả**: Tra cứu bài giảng hoặc video từ Khan Academy dựa trên chủ đề được yêu cầu[cite: 6].
-  * [cite\_start]**Kênh hoạt động**: Chỉ hoạt động trong kênh có ID `EDUCATIONAL_CHANNEL_ID` (kênh học tập)[cite: 7].
-  * [cite\_start]**Cú pháp**: `!khan <chủ đề>` [cite: 8]
+  * **Mô tả**: Tra cứu bài giảng hoặc video từ Khan Academy dựa trên chủ đề được yêu cầu[cite: 6].
+  * **Kênh hoạt động**: Chỉ hoạt động trong kênh có ID `EDUCATIONAL_CHANNEL_ID` (kênh học tập)[cite: 7].
+  * **Cú pháp**: `!khan <chủ đề>` [cite: 8]
   * **Ví dụ**:
-      * [cite\_start]Nhập: `!khan quadratic equation` [cite: 8]
+      * Nhập: `!khan quadratic equation` [cite: 8]
       * Kết quả:
         ```
         **Chủ đề: Quadratic equation**
@@ -84,23 +84,23 @@ Các chức năng tự động sẽ thực hiện tự động khi khởi chạy
         Nguồn: Khan Academy
         ```
   * **Chủ đề hỗ trợ**:
-      * [cite\_start]`quadratic equation` (phương trình bậc hai) [cite: 8]
-      * [cite\_start]`derivative` (đạo hàm) [cite: 8]
-      * [cite\_start]`photosynthesis` (quang hợp) [cite: 8]
-      * [cite\_start]`newton's laws` (định luật Newton) [cite: 8]
-      * [cite\_start](Danh sách sẽ được mở rộng trong tương lai) [cite: 8]
+      * `quadratic equation` (phương trình bậc hai) [cite: 8]
+      * `derivative` (đạo hàm) [cite: 8]
+      * `photosynthesis` (quang hợp) [cite: 8]
+      * `newton's laws` (định luật Newton) [cite: 8]
+      * (Danh sách sẽ được mở rộng trong tương lai) [cite: 8]
   * **Lưu ý**:
-      * [cite\_start]Nếu chủ đề không được tìm thấy, bot sẽ yêu cầu thử lại với từ khóa khác[cite: 9].
-      * [cite\_start]Ví dụ lỗi: `!khan calculus` → "Không tìm thấy tài liệu cho chủ đề này. Vui lòng thử lại với từ khóa khác, ví dụ: `!khan quadratic equation`." [cite: 9]
-      * [cite\_start]Hiện tại chỉ hỗ trợ một số chủ đề cố định[cite: 20]. [cite\_start]Danh sách chủ đề sẽ được cập nhật trong tương lai[cite: 21].
+      * Nếu chủ đề không được tìm thấy, bot sẽ yêu cầu thử lại với từ khóa khác[cite: 9].
+      * Ví dụ lỗi: `!khan calculus` → "Không tìm thấy tài liệu cho chủ đề này. Vui lòng thử lại với từ khóa khác, ví dụ: `!khan quadratic equation`." [cite: 9]
+      * Hiện tại chỉ hỗ trợ một số chủ đề cố định[cite: 20]. Danh sách chủ đề sẽ được cập nhật trong tương lai[cite: 21].
 
 #### 2\. Lệnh `!math <phương trình>`
 
-  * [cite\_start]**Mô tả**: Giải phương trình toán học sử dụng thư viện SymPy (hỗ trợ phương trình, đạo hàm, tích phân, v.v.)[cite: 10].
-  * [cite\_start]**Kênh hoạt động**: Chỉ hoạt động trong kênh có ID `EDUCATIONAL_CHANNEL_ID` (kênh học tập)[cite: 11].
-  * [cite\_start]**Cú pháp**: `!math <phương trình>` [cite: 12]
+  * **Mô tả**: Giải phương trình toán học sử dụng thư viện SymPy (hỗ trợ phương trình, đạo hàm, tích phân, v.v.)[cite: 10].
+  * **Kênh hoạt động**: Chỉ hoạt động trong kênh có ID `EDUCATIONAL_CHANNEL_ID` (kênh học tập)[cite: 11].
+  * **Cú pháp**: `!math <phương trình>` [cite: 12]
   * **Ví dụ**:
-      * [cite\_start]Nhập: `!math x^2 + 5x + 6 = 0` [cite: 12]
+      * Nhập: `!math x^2 + 5x + 6 = 0` [cite: 12]
       * Kết quả:
         ```
         **Kết quả giải phương trình**
@@ -108,7 +108,7 @@ Các chức năng tự động sẽ thực hiện tự động khi khởi chạy
         **Nghiệm**: x = -2, x = -3
         Nguồn: SymPy
         ```
-      * [cite\_start]Nhập: `!math 2*x + 3` [cite: 12]
+      * Nhập: `!math 2*x + 3` [cite: 12]
       * Kết quả:
         ```
         **Kết quả giải phương trình**
@@ -117,17 +117,17 @@ Các chức năng tự động sẽ thực hiện tự động khi khởi chạy
         Nguồn: SymPy
         ```
   * **Lưu ý**:
-      * [cite\_start]Phương trình cần sử dụng biến `x` và cú pháp toán học chuẩn (ví dụ: `x^2` cho bình phương, `*` cho phép nhân)[cite: 14].
+      * Phương trình cần sử dụng biến `x` và cú pháp toán học chuẩn (ví dụ: `x^2` cho bình phương, `*` cho phép nhân)[cite: 14].
       * Nếu nhập sai cú pháp, bot sẽ báo lỗi và gợi ý: `Lỗi khi giải phương trình: <lỗi>. Vui lòng nhập đúng cú pháp, ví dụ: !math x^2 + 5x + 6 = 0`[cite: 15].
-      * [cite\_start]Chỉ hỗ trợ phương trình với biến `x` và yêu cầu cú pháp chuẩn[cite: 22]. [cite\_start]Các bài toán phức tạp hơn (như tích phân hoặc hệ phương trình nhiều biến) sẽ được hỗ trợ trong các phiên bản sau[cite: 23].
+      * Chỉ hỗ trợ phương trình với biến `x` và yêu cầu cú pháp chuẩn[cite: 22]. Các bài toán phức tạp hơn (như tích phân hoặc hệ phương trình nhiều biến) sẽ được hỗ trợ trong các phiên bản sau[cite: 23].
 
 #### 3\. Lệnh `!wikipedia <truy vấn>`
 
-  * [cite\_start]**Mô tả**: Tra cứu tóm tắt từ Wikipedia cho một chủ đề hoặc khái niệm[cite: 16].
-  * [cite\_start]**Kênh hoạt động**: Chỉ hoạt động trong kênh có ID `WIKI_CHANNEL_ID` (kênh Wikipedia)[cite: 17].
-  * [cite\_start]**Cú pháp**: `!wikipedia <truy vấn>` [cite: 18]
+  * **Mô tả**: Tra cứu tóm tắt từ Wikipedia cho một chủ đề hoặc khái niệm[cite: 16].
+  * **Kênh hoạt động**: Chỉ hoạt động trong kênh có ID `WIKI_CHANNEL_ID` (kênh Wikipedia)[cite: 17].
+  * **Cú pháp**: `!wikipedia <truy vấn>` [cite: 18]
   * **Ví dụ**:
-      * [cite\_start]Nhập: `!wikipedia photosynthesis` [cite: 18]
+      * Nhập: `!wikipedia photosynthesis` [cite: 18]
       * Kết quả:
         ```
         **Tóm tắt: Photosynthesis**
@@ -135,20 +135,20 @@ Các chức năng tự động sẽ thực hiện tự động khi khởi chạy
         Nguồn: Wikipedia
         ```
   * **Lưu ý**:
-      * [cite\_start]Truy vấn nên cụ thể để có kết quả chính xác (ví dụ: `photosynthesis` thay vì `plant`)[cite: 19].
+      * Truy vấn nên cụ thể để có kết quả chính xác (ví dụ: `photosynthesis` thay vì `plant`)[cite: 19].
       * Nếu không tìm thấy kết quả, bot sẽ thông báo: `Không tìm thấy tóm tắt cho truy vấn này. Vui lòng thử lại.`[cite: 19, 20].
-      * [cite\_start]Kết quả có thể không chính xác nếu truy vấn không rõ ràng[cite: 24]. [cite\_start]Hãy sử dụng từ khóa cụ thể[cite: 25].
+      * Kết quả có thể không chính xác nếu truy vấn không rõ ràng[cite: 24]. Hãy sử dụng từ khóa cụ thể[cite: 25].
 
 ## Lỗi thường gặp và cách khắc phục
 
   * **Lệnh không hoạt động**:
-      * [cite\_start]Kiểm tra xem bạn đang sử dụng đúng kênh (`EDUCATIONAL_CHANNEL_ID` cho `!khan` và `!math`, `WIKI_CHANNEL_ID` cho `!wikipedia`)[cite: 26].
-      * [cite\_start]Ví dụ lỗi: `Lệnh này chỉ hoạt động trong kênh học tập.` [cite: 26]
+      * Kiểm tra xem bạn đang sử dụng đúng kênh (`EDUCATIONAL_CHANNEL_ID` cho `!khan` và `!math`, `WIKI_CHANNEL_ID` cho `!wikipedia`)[cite: 26].
+      * Ví dụ lỗi: `Lệnh này chỉ hoạt động trong kênh học tập.` [cite: 26]
   * **Lỗi cú pháp phương trình**:
-      * [cite\_start]Đảm bảo sử dụng cú pháp toán học đúng, ví dụ: `x^2 + 5x + 6 = 0` thay vì `x squared plus 5x plus 6`[cite: 27].
+      * Đảm bảo sử dụng cú pháp toán học đúng, ví dụ: `x^2 + 5x + 6 = 0` thay vì `x squared plus 5x plus 6`[cite: 27].
   * **Không tìm thấy tài liệu**:
-      * [cite\_start]Kiểm tra từ khóa (ví dụ: dùng `quadratic equation` thay vì `math` cho `!khan`)[cite: 28].
-      * [cite\_start]Thử từ khóa khác hoặc cụ thể hơn cho `!wikipedia`[cite: 28].
+      * Kiểm tra từ khóa (ví dụ: dùng `quadratic equation` thay vì `math` cho `!khan`)[cite: 28].
+      * Thử từ khóa khác hoặc cụ thể hơn cho `!wikipedia`[cite: 28].
 
 ## Cấu trúc đường dẫn
 
