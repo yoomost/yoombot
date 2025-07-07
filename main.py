@@ -6,13 +6,14 @@ from config import BOT_TOKEN
 from src.events.bot_events import setup_events
 from src.commands.music_commands import setup_music_commands
 from src.commands.debug_commands import setup_debug_commands
+from src.commands.commands import setup as setup_educational_commands
 from database import init_db, clear_mental_chat_history, clear_general_chat_history, clear_music_queue, clear_news_articles
 from src.utils.news import news_task
 from src.utils.pixiv import setup as x_images_setup
 from src.utils.reddit import setup as reddit_images_setup
 
 # Set up logging
-logging.basicConfig(filename=r'.\data\bot.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(filename=r'./data/bot.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Discord bot setup
 intents = discord.Intents.default()
@@ -64,6 +65,7 @@ async def setup_tasks():
     setup_events(bot, queues, loop_status)
     setup_music_commands(bot, queues, loop_status)
     setup_debug_commands(bot, queues)
+    await setup_educational_commands(bot)  # Gọi hàm setup bất đồng bộ
 
     # Tạo các task
     bot.loop.create_task(news_task(bot))

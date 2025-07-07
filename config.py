@@ -15,6 +15,8 @@ try:
     MENTAL_CHANNEL_ID = int(os.getenv('MENTAL_CHANNEL_ID'))
     GENERAL_CHANNEL_ID = int(os.getenv('GENERAL_CHANNEL_ID'))
     WELCOME_CHANNEL_ID = int(os.getenv('WELCOME_CHANNEL_ID'))
+    WIKI_CHANNEL_ID = int(os.getenv('WIKI_CHANNEL_ID'))
+    EDUCATIONAL_CHANNEL_ID = int(os.getenv('EDUCATIONAL_CHANNEL_ID'))
     NEWS_CHANNEL_ID = int(os.getenv('NEWS_CHANNEL_ID'))
     IMAGE_CHANNEL_ID = int(os.getenv('IMAGE_CHANNEL_ID'))
     ADMIN_ROLE_ID = int(os.getenv('ADMIN_ROLE_ID'))
