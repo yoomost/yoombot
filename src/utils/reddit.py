@@ -8,7 +8,7 @@ import asyncpraw
 import aiohttp
 import io
 from config import IMAGE_CHANNEL_ID, ADMIN_ROLE_ID, REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USER_AGENT
-from database import get_db_connection
+from database import get_db_connection, add_reddit_post, is_reddit_post_sent
 
 class RedditCog(commands.Cog):
     """Cog quản lý chức năng lấy và đăng ảnh từ r/hentai trên Reddit."""
@@ -56,10 +56,17 @@ class RedditCog(commands.Cog):
                     PRIMARY KEY (type, value)
                 )
             """)
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS reddit_posts (
+                    post_id TEXT PRIMARY KEY,
+                    title TEXT,
+                    posted_at DATETIME
+                )
+            """)
             conn.commit()
-            logging.debug("Đã kiểm tra/tạo bảng reddit_priorities")
+            logging.debug("Đã kiểm tra/tạo bảng reddit_priorities và reddit_posts")
         except Exception as e:
-            logging.error(f"Lỗi khi tạo bảng reddit_priorities: {str(e)}", exc_info=True)
+            logging.error(f"Lỗi khi tạo bảng: {str(e)}", exc_info=True)
             if cursor:
                 cursor.close()
             if conn:
@@ -81,21 +88,22 @@ class RedditCog(commands.Cog):
                 conn.close()
             return False
 
-        # Lấy bài viết từ r/hentai
+        # Lấy bài viết mới từ API Reddit
         posts = []
         try:
             subreddit = await reddit.subreddit("hentai")
-            async for submission in subreddit.hot(limit=50):  # Lấy 50 bài hot nhất
+            async for submission in subreddit.new(limit=50):  # Lấy 50 bài mới nhất
                 if hasattr(submission, 'url') and submission.url.endswith(('.jpg', '.png', '.jpeg')):
-                    posts.append(submission)
-            logging.info(f"Đã nhận được {len(posts)} bài viết hình ảnh từ r/hentai")
+                    if not is_reddit_post_sent(submission.id):
+                        posts.append(submission)
+            logging.info(f"Đã nhận được {len(posts)} bài viết hình ảnh mới từ r/hentai")
         except Exception as e:
             logging.error(f"Lỗi khi lấy bài viết từ Reddit: {str(e)}", exc_info=True)
             await reddit.close()
             return False
 
         if not posts:
-            logging.warning("Không tìm thấy bài viết hình ảnh nào từ r/hentai.")
+            logging.warning("Không tìm thấy bài viết hình ảnh mới từ r/hentai.")
             await reddit.close()
             return False
 
@@ -145,6 +153,7 @@ class RedditCog(commands.Cog):
                             file = discord.File(fp=io.BytesIO(data), filename=f"image_{idx}.jpg")
                             await image_channel.send(embed=embed, file=file)
                             logging.info(f"Đã gửi embed với file ảnh cho {post.title}")
+                            add_reddit_post(post.id, post.title)  # Lưu bài viết đã đăng
                             sent_count += 1
                         else:
                             logging.error(f"Không tải được ảnh từ {img_url}, mã lỗi: {resp.status}")
@@ -153,6 +162,14 @@ class RedditCog(commands.Cog):
                 except Exception as e:
                     logging.error(f"Lỗi khi xử lý bài viết {post.title}: {str(e)}", exc_info=True)
                     continue
+
+        # Xóa các bài viết cũ hơn 24 giờ
+        try:
+            cursor.execute("DELETE FROM reddit_posts WHERE posted_at < datetime('now', '-24 hours')")
+            conn.commit()
+            logging.debug("Đã xóa các bài viết Reddit cũ hơn 24 giờ")
+        except Exception as e:
+            logging.error(f"Lỗi khi xóa bài viết cũ: {str(e)}", exc_info=True)
 
         if cursor:
             cursor.close()

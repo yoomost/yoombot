@@ -56,6 +56,9 @@ def init_db():
     c.execute('''CREATE TABLE IF NOT EXISTS reddit_priorities
                  (type TEXT, value TEXT, PRIMARY KEY (type, value))''')
     conn.commit()
+    c.execute('''CREATE TABLE IF NOT EXISTS reddit_posts
+                 (post_id TEXT PRIMARY KEY, title TEXT, posted_at DATETIME)''')
+    conn.commit()
     conn.close()
 
 def get_db_connection(db_name="queues.db"):
@@ -121,6 +124,34 @@ def clear_reddit_priorities():
     c.execute("DELETE FROM reddit_priorities")
     conn.commit()
     conn.close()
+
+def clear_reddit_posts():
+    """Xóa danh sách bài viết Reddit đã đăng."""
+    conn = sqlite3.connect(r'.\data\reddit.db')
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS reddit_posts
+                 (post_id TEXT PRIMARY KEY, title TEXT, posted_at DATETIME)''')
+    c.execute("DELETE FROM reddit_posts")
+    conn.commit()
+    conn.close()
+
+def add_reddit_post(post_id, title):
+    """Thêm bài viết Reddit vào cơ sở dữ liệu."""
+    conn = sqlite3.connect(r'.\data\reddit.db')
+    c = conn.cursor()
+    c.execute("INSERT OR IGNORE INTO reddit_posts (post_id, title, posted_at) VALUES (?, ?, datetime('now'))",
+              (post_id, title))
+    conn.commit()
+    conn.close()
+
+def is_reddit_post_sent(post_id):
+    """Kiểm tra xem bài viết Reddit đã được gửi chưa."""
+    conn = sqlite3.connect(r'.\data\reddit.db')
+    c = conn.cursor()
+    c.execute("SELECT 1 FROM reddit_posts WHERE post_id = ?", (post_id,))
+    exists = c.fetchone() is not None
+    conn.close()
+    return exists
 
 def add_message(channel_id, message_id, role, content, db_type):
     """Thêm tin nhắn vào lịch sử trò chuyện."""

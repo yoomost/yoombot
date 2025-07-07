@@ -187,7 +187,7 @@ async def news_task(bot):
             await asyncio.sleep(60)
             continue
         logging.info("Hoàn thành chu kỳ lấy tin, chờ 15 phút")
-        await asyncio.sleep(910)
+        await asyncio.sleep(1810)
 
 async def setup(bot):
     """Thiết lập tác vụ tin tức."""
