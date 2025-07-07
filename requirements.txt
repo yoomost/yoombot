@@ -13,6 +13,7 @@ python-dotenv==1.1.1
 pytz==2024.2
 Requests==2.32.4
 sentence_transformers==4.1.0
+sympy==1.13.1
 torch==2.5.1+cu124
 transformers==4.47.0
 yt_dlp==2025.6.30

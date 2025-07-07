@@ -113,12 +113,12 @@ Các chức năng tự động sẽ thực hiện tự động khi khởi chạy
         ```
         **Kết quả giải phương trình**
         **Phương trình**: 2*x + 3
-        [cite_start]**Nghiệm**: x = -3/2 [cite: 13]
+        **Nghiệm**: x = -3/2 [cite: 13]
         Nguồn: SymPy
         ```
   * **Lưu ý**:
       * [cite\_start]Phương trình cần sử dụng biến `x` và cú pháp toán học chuẩn (ví dụ: `x^2` cho bình phương, `*` cho phép nhân)[cite: 14].
-      * Nếu nhập sai cú pháp, bot sẽ báo lỗi và gợi ý: `Lỗi khi giải phương trình: <lỗi>. [cite_start]Vui lòng nhập đúng cú pháp, ví dụ: !math x^2 + 5x + 6 = 0`[cite: 15].
+      * Nếu nhập sai cú pháp, bot sẽ báo lỗi và gợi ý: `Lỗi khi giải phương trình: <lỗi>. Vui lòng nhập đúng cú pháp, ví dụ: !math x^2 + 5x + 6 = 0`[cite: 15].
       * [cite\_start]Chỉ hỗ trợ phương trình với biến `x` và yêu cầu cú pháp chuẩn[cite: 22]. [cite\_start]Các bài toán phức tạp hơn (như tích phân hoặc hệ phương trình nhiều biến) sẽ được hỗ trợ trong các phiên bản sau[cite: 23].
 
 #### 3\. Lệnh `!wikipedia <truy vấn>`
@@ -136,7 +136,7 @@ Các chức năng tự động sẽ thực hiện tự động khi khởi chạy
         ```
   * **Lưu ý**:
       * [cite\_start]Truy vấn nên cụ thể để có kết quả chính xác (ví dụ: `photosynthesis` thay vì `plant`)[cite: 19].
-      * Nếu không tìm thấy kết quả, bot sẽ thông báo: `Không tìm thấy tóm tắt cho truy vấn này. [cite_start]Vui lòng thử lại.`[cite: 19, 20].
+      * Nếu không tìm thấy kết quả, bot sẽ thông báo: `Không tìm thấy tóm tắt cho truy vấn này. Vui lòng thử lại.`[cite: 19, 20].
       * [cite\_start]Kết quả có thể không chính xác nếu truy vấn không rõ ràng[cite: 24]. [cite\_start]Hãy sử dụng từ khóa cụ thể[cite: 25].
 
 ## Lỗi thường gặp và cách khắc phục
@@ -157,8 +157,8 @@ yoombot/
 ├── data/
 │   ├── documents/          # Chứa file PDF, JSON và JSONL cho mô hình RAG
 │   │   └── mental_counseling/
-[cite_start]│   ├── bot.log [cite: 4]
-[cite_start]│   ├── rag_index/ [cite: 4]
+│   ├── bot.log [cite: 4]
+│   ├── rag_index/ [cite: 4]
 │   ├── chat_history.db
 │   ├── queues.db
 │   └── yt_dlp_cache/
@@ -169,22 +169,22 @@ yoombot/
 │   │   └── utils.py
 │   ├── commands/
 │   │   ├── __init__.py
-[cite_start]│   │   ├── commands.py [cite: 4]
-[cite_start]│   │   ├── music_commands.py [cite: 4]
-[cite_start]│   │   └── debug_commands.py [cite: 4]
+│   │   ├── commands.py [cite: 4]
+│   │   ├── music_commands.py [cite: 4]
+│   │   └── debug_commands.py [cite: 4]
 │   ├── events/
 │   │   ├── __init__.py
-[cite_start]│   │   └── bot_events.py [cite: 4]
+│   │   └── bot_events.py [cite: 4]
 │   ├── utils/
 │   │   ├── __init__.py
-[cite_start]│   │   ├── helpers.py [cite: 4]
-[cite_start]│   │   ├── news.py [cite: 4]
-[cite_start]│   │   ├── rag.py [cite: 4]
-[cite_start]│   │   ├── reddit.py [cite: 4]
-[cite_start]│   │   └── pixiv.py [cite: 4]
+│   │   ├── helpers.py [cite: 4]
+│   │   ├── news.py [cite: 4]
+│   │   ├── rag.py [cite: 4]
+│   │   ├── reddit.py [cite: 4]
+│   │   └── pixiv.py [cite: 4]
 │   └──__init__.py
-[cite_start]├── main.py [cite: 4]
-[cite_start]├── config.py [cite: 4]
-[cite_start]├── database.py [cite: 4]
+├── main.py [cite: 4]
+├── config.py [cite: 4]
+├── database.py [cite: 4]
 └── .env
 ```
