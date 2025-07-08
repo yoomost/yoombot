@@ -324,7 +324,7 @@ class RedditCog(commands.Cog):
             await ctx.send(f"Lỗi khi đăng ảnh: {str(e)}")
 
     async def reddit_images_task(self):
-        """Tác vụ nền kiểm tra ảnh từ các subreddit mỗi 15 phút."""
+        """Tác vụ nền kiểm tra ảnh từ các subreddit mỗi 30 phút."""
         logging.info("Khởi động tác vụ lấy ảnh từ các subreddit")
         while True:
             try:
@@ -337,8 +337,8 @@ class RedditCog(commands.Cog):
                 logging.error(f"Lỗi trong reddit_images_task: {str(e)}", exc_info=True)
                 await asyncio.sleep(60)
                 continue
-            logging.info("Hoàn thành chu kỳ lấy ảnh từ các subreddit, chờ 15 phút")
-            await asyncio.sleep(910)
+            logging.info("Hoàn thành chu kỳ lấy ảnh từ các subreddit, chờ 30 phút")
+            await asyncio.sleep(1810)
 
 async def setup(bot):
     """Thiết lập Cog cho bot."""
