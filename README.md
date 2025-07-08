@@ -40,9 +40,13 @@ Các chức năng tự động sẽ thực hiện tự động khi khởi chạy
 | `remove_artist` | Xoá artist muốn theo dõi |
 | `add_reddit_user` | Thêm user muốn theo dõi |
 | `remove_reddit_user` | Xoá user muốn theo dõi |
+| `add_reddit_flair` | Thêm flair reddit muốn theo dõi |
+| `remove_reddit_flair` | Xoá flair reddit muốn theo dõi |
+| `add_subreddit` | Thêm subreddit muốn theo dõi |
+| `remove_subreddit` | Xoá subreddit muốn theo dõi |
 | `add_tag` | Thêm tag muốn theo dõi |
 | `remove_tag` | Xoá tag muốn theo dõi |
-| `post_image_now` | Xuất thêm 10 ảnh |
+| `post_image_now` | Xuất thêm 10 ảnh từ pixiv|
 
 ### Danh sách lệnh chức năng phát nhạc (\!):
 

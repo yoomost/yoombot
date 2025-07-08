@@ -98,11 +98,40 @@ def init_db():
         c.execute('''CREATE TABLE IF NOT EXISTS reddit_priorities
                      (type TEXT, value TEXT, PRIMARY KEY (type, value))''')
         c.execute('''CREATE TABLE IF NOT EXISTS reddit_posts
-                     (post_id TEXT PRIMARY KEY, title TEXT, posted_at DATETIME)''')
+                     (post_id TEXT, subreddit TEXT, title TEXT, posted_at DATETIME, PRIMARY KEY (post_id, subreddit))''')
+        c.execute('''CREATE TABLE IF NOT EXISTS reddit_subreddits
+                     (subreddit_name TEXT PRIMARY KEY)''')
         conn.commit()
         logging.info("Initialized reddit.db")
     except Exception as e:
         logging.error(f"Error initializing reddit.db: {str(e)}")
+    finally:
+        conn.close()
+
+def migrate_reddit_db():
+    """Di chuyển cơ sở dữ liệu reddit.db để thêm cột subreddit nếu chưa tồn tại."""
+    try:
+        conn = sqlite3.connect(r'.\data\reddit.db')
+        c = conn.cursor()
+        # Kiểm tra schema của reddit_posts
+        c.execute("PRAGMA table_info(reddit_posts)")
+        columns = [info[1] for info in c.fetchall()]
+        if 'subreddit' not in columns:
+            # Tạo bảng tạm với schema mới
+            c.execute('''CREATE TABLE reddit_posts_new
+                         (post_id TEXT, subreddit TEXT, title TEXT, posted_at DATETIME, PRIMARY KEY (post_id, subreddit))''')
+            # Sao chép dữ liệu từ bảng cũ, đặt subreddit mặc định là 'hentai'
+            c.execute('''INSERT INTO reddit_posts_new (post_id, subreddit, title, posted_at)
+                         SELECT post_id, 'hentai', title, posted_at FROM reddit_posts''')
+            # Xóa bảng cũ và đổi tên bảng mới
+            c.execute("DROP TABLE reddit_posts")
+            c.execute("ALTER TABLE reddit_posts_new RENAME TO reddit_posts")
+            conn.commit()
+            logging.info("Migrated reddit_posts table to include subreddit column")
+        else:
+            logging.info("reddit_posts table already has subreddit column, no migration needed")
+    except Exception as e:
+        logging.error(f"Error migrating reddit.db: {str(e)}")
     finally:
         conn.close()
 
@@ -212,7 +241,7 @@ def clear_reddit_posts():
         conn = sqlite3.connect(r'.\data\reddit.db')
         c = conn.cursor()
         c.execute('''CREATE TABLE IF NOT EXISTS reddit_posts
-                     (post_id TEXT PRIMARY KEY, title TEXT, posted_at DATETIME)''')
+                     (post_id TEXT, subreddit TEXT, title TEXT, posted_at DATETIME, PRIMARY KEY (post_id, subreddit))''')
         c.execute("DELETE FROM reddit_posts")
         conn.commit()
         logging.info("Cleared reddit_posts in reddit.db")
@@ -221,32 +250,32 @@ def clear_reddit_posts():
     finally:
         conn.close()
 
-def add_reddit_post(post_id, title):
+def add_reddit_post(post_id, title, subreddit):
     """Thêm bài viết Reddit vào cơ sở dữ liệu."""
     try:
         conn = sqlite3.connect(r'.\data\reddit.db')
         c = conn.cursor()
-        c.execute("INSERT OR IGNORE INTO reddit_posts (post_id, title, posted_at) VALUES (?, ?, datetime('now'))",
-                  (post_id, title))
+        c.execute("INSERT OR IGNORE INTO reddit_posts (post_id, subreddit, title, posted_at) VALUES (?, ?, ?, datetime('now'))",
+                  (post_id, subreddit, title))
         conn.commit()
-        logging.info(f"Added Reddit post {post_id} to reddit.db")
+        logging.info(f"Added Reddit post {post_id} from r/{subreddit} to reddit.db")
     except Exception as e:
-        logging.error(f"Error adding Reddit post {post_id}: {str(e)}")
+        logging.error(f"Error adding Reddit post {post_id} from r/{subreddit}: {str(e)}")
     finally:
         conn.close()
 
-def is_reddit_post_sent(post_id):
+def is_reddit_post_sent(post_id, subreddit):
     """Kiểm tra xem bài viết Reddit đã được gửi chưa."""
     try:
         conn = sqlite3.connect(r'.\data\reddit.db')
         c = conn.cursor()
-        c.execute("SELECT 1 FROM reddit_posts WHERE post_id = ?", (post_id,))
+        c.execute("SELECT 1 FROM reddit_posts WHERE post_id = ? AND subreddit = ?", (post_id, subreddit))
         exists = c.fetchone() is not None
         conn.close()
-        logging.info(f"Checked Reddit post {post_id}: {'sent' if exists else 'not sent'}")
+        logging.info(f"Checked Reddit post {post_id} from r/{subreddit}: {'sent' if exists else 'not sent'}")
         return exists
     except Exception as e:
-        logging.error(f"Error checking Reddit post {post_id}: {str(e)}")
+        logging.error(f"Error checking Reddit post {post_id} from r/{subreddit}: {str(e)}")
         return False
 
 def add_message(thread_id, message_id, role, content, db_type):
