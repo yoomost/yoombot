@@ -12,7 +12,8 @@ node_modules/
 ai-chatbot/
 backup/
 
-# Ignore text
+# Ignore data
+dataset_download.py
 /data
 
 # Ignore cache
