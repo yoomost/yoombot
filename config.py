@@ -7,6 +7,7 @@ load_dotenv()
 # Load configuration from environment variables
 BOT_TOKEN = os.getenv('BOT_TOKEN')
 GROQ_API_KEY = os.getenv('GROQ_API_KEY')
+XAI_API_KEY = os.getenv('XAI_API_KEY')  # API key for Grok 4
 PIXIV_REFRESH_TOKEN = os.getenv('PIXIV_REFRESH_TOKEN')
 REDDIT_CLIENT_ID = os.getenv('REDDIT_CLIENT_ID')
 REDDIT_CLIENT_SECRET = os.getenv('REDDIT_CLIENT_SECRET')
@@ -19,6 +20,7 @@ try:
     EDUCATIONAL_CHANNEL_ID = int(os.getenv('EDUCATIONAL_CHANNEL_ID'))
     NEWS_CHANNEL_ID = int(os.getenv('NEWS_CHANNEL_ID'))
     IMAGE_CHANNEL_ID = int(os.getenv('IMAGE_CHANNEL_ID'))
+    GROK4_CHANNEL_ID = int(os.getenv('GROK4_CHANNEL_ID'))  # New channel for Grok 4
     ADMIN_ROLE_ID = int(os.getenv('ADMIN_ROLE_ID'))
 except (TypeError, ValueError):
-    raise ValueError("MENTAL_CHANNEL_ID, GENERAL_CHANNEL_ID, WELCOME_CHANNEL_ID, IMAGE_CHANNEL_ID, ADMIN_ROLE_ID and NEWS_CHANNEL_ID must be valid numbers")
+    raise ValueError("MENTAL_CHANNEL_ID, GENERAL_CHANNEL_ID, WELCOME_CHANNEL_ID, IMAGE_CHANNEL_ID, GROK4_CHANNEL_ID, ADMIN_ROLE_ID and NEWS_CHANNEL_ID must be valid numbers")

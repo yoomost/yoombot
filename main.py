@@ -7,13 +7,13 @@ from src.events.bot_events import setup_events
 from src.commands.music_commands import setup_music_commands
 from src.commands.debug_commands import setup_debug_commands
 from src.commands.commands import setup as setup_educational_commands
-from database import init_db, clear_mental_chat_history, clear_general_chat_history, clear_music_queue, clear_news_articles
+from database import init_db, clear_mental_chat_history, clear_general_chat_history, clear_grok4_chat_history, clear_music_queue, clear_news_articles
 from src.utils.news import news_task
 from src.utils.pixiv import setup as x_images_setup
 from src.utils.reddit import setup as reddit_images_setup
 
 # Set up logging
-logging.basicConfig(filename=r'./data/bot.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(filename=r'./data/bot.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Discord bot setup
 intents = discord.Intents.default()
@@ -47,16 +47,17 @@ async def on_ready():
 async def setup_tasks():
     """Khởi tạo các task bất đồng bộ."""
     init_db()
-    logging.info("Initialized mental_chat_history.db, general_chat_history.db, queues.db, news.db, x_users.db, and reddit.db")
+    logging.info("Initialized mental_chat_history.db, general_chat_history.db, grok4_chat_history.db, queues.db, news.db, x_users.db, and reddit.db")
 
     try:
         clear_mental_chat_history()
         clear_general_chat_history()
+        clear_grok4_chat_history()  # Clear entire grok4 history at startup
         clear_music_queue()
         clear_news_articles()
         queues.clear()
         loop_status.clear()
-        logging.info("Cleared mental chat history, general chat history, music queues, news articles, and in-memory data")
+        logging.info("Cleared mental chat history, general chat history, grok4 chat history, music queues, news articles, and in-memory data")
     except Exception as e:
         logging.error(f"Error clearing data on startup: {str(e)}")
         raise

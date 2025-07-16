@@ -7,9 +7,10 @@
 1.  Clone repo về máy và cài đặt `requirements.txt`.
 2.  Tạo file `.env` bao gồm:
       * `BOT_TOKEN`, `GROQ_API_KEY` (cho chatbot từ Groq API)
+      * `XAI_API_KEY` (cho chatbot Grok 4)
       * `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET`, `REDDIT_USER_AGENT` (từ việc [tạo reddit app](https://www.reddit.com/prefs/apps))
       * `PIXIV_REFRESH_TOKEN` (phải ghi, nhưng có thể để trống)
-      * ID channel discord: `MENTAL_CHANNEL_ID`, `GENERAL_CHANNEL_ID`, `NEWS_CHANNEL_ID`, `IMAGE_CHANNEL_ID`, `WELCOME_CHANNEL_ID` , `WIKI_CHANNEL_ID` , `EDUCATIONAL_CHANNEL_ID`.
+      * ID channel discord: `MENTAL_CHANNEL_ID`, `GENERAL_CHANNEL_ID`, ` GROK4_CHANNEL_ID`, `NEWS_CHANNEL_ID`, `IMAGE_CHANNEL_ID`, `WELCOME_CHANNEL_ID` , `WIKI_CHANNEL_ID` , `EDUCATIONAL_CHANNEL_ID`.
         Thay các ID trên bằng ID thực tế của các kênh trong server Discord của bạn.
 3.  Lưu các file PDF cần thiết vào `data/documents/mental_counseling/` để chạy chatbot tư vấn tâm lý.
 4.  Chạy file `main.py`.
@@ -18,13 +19,14 @@
 
 ## Chức năng (WIP)
 
-1.  Tự động hiển thị thông báo chào mừng khi có người join server.
+1.  Gửi tin nhắn chào mừng thành viên mới.
 2.  Phát nhạc từ Youtube thông qua link, tên bài hát hay link playlist.
 3.  Tự động đăng báo mới từ VnExpress mỗi 15 phút.
 4.  Tự động đăng hình Recommended của tài khoản đăng nhập pixiv, có thể thay đổi theo artist hay tag.
 5.  Tự động đăng hình sắp xếp theo Hot trên subreddit you-know-which, có thể chọn nguồn từ user bất kì trong subreddit.
-6.  Chatbot AI, bao gồm chatbot tư vấn tâm lý và chatbot tổng hợp.
+6.  Chatbot AI, bao gồm chatbot tư vấn tâm lý RAG, chatbot tổng hợp từ Groq API, và chatbot Grok 4.
 7.  Hỗ trợ tra cứu tài liệu học tập và giải bài tập.
+
 
 ## Hướng dẫn sử dụng
 
@@ -36,17 +38,18 @@ Các chức năng tự động sẽ thực hiện tự động khi khởi chạy
 
 | Commands | Nội dung |
 | :------------------ | :---------------- |
-| `add_artist` | Thêm artist muốn theo dõi |
-| `remove_artist` | Xoá artist muốn theo dõi |
-| `add_reddit_user` | Thêm user muốn theo dõi |
-| `remove_reddit_user` | Xoá user muốn theo dõi |
-| `add_reddit_flair` | Thêm flair reddit muốn theo dõi |
-| `remove_reddit_flair` | Xoá flair reddit muốn theo dõi |
-| `add_subreddit` | Thêm subreddit muốn theo dõi |
-| `remove_subreddit` | Xoá subreddit muốn theo dõi |
-| `add_tag` | Thêm tag muốn theo dõi |
-| `remove_tag` | Xoá tag muốn theo dõi |
+| `add_artist <ID artist>` | Thêm artist muốn theo dõi |
+| `remove_artist <ID artist>` | Xoá artist muốn theo dõi |
+| `add_reddit_user <username>` | Thêm user muốn theo dõi |
+| `remove_reddit_user <username>` | Xoá user muốn theo dõi |
+| `add_reddit_flair <flair>` | Thêm flair Reddit muốn theo dõi |
+| `remove_reddit_flair <flair>` | Xoá flair Reddit muốn theo dõi |
+| `add_subreddit <tên subreddit (không lấy phần "r/")>` | Thêm subreddit muốn theo dõi |
+| `remove_subreddit <tên subreddit (không lấy phần "r/")>` | Xoá subreddit muốn theo dõi |
+| `add_tag <tag>` | Thêm tag muốn theo dõi |
+| `remove_tag <tag>` | Xoá tag muốn theo dõi |
 | `post_image_now` | Xuất thêm 10 ảnh từ pixiv|
+| `post_reddit_images_now` | Xuất thêm 5 ảnh từ Reddit|
 
 ### Danh sách lệnh chức năng phát nhạc (\!):
 
@@ -61,14 +64,25 @@ Các chức năng tự động sẽ thực hiện tự động khi khởi chạy
 | `leave` | Rời khỏi kênh voice |
 | `now` | Hiển thị bài hát đang phát |
 | `pause` | Tạm dừng bài hát đang phát |
-| `play` | Phát nhạc từ URL YouTube hoặc tìm kiếm theo từ khóa |
+| `play <tên/link>` | Phát nhạc từ URL YouTube hoặc tìm kiếm theo từ khóa |
 | `queue` | Hiển thị danh sách queue nhạc hiện tại |
 | `resume` | Tiếp tục phát bài hát đã tạm dừng |
-| `search` | Tìm kiếm bài hát mà không phát (để debug) |
+| `search <tên/link>` | Tìm kiếm bài hát mà không phát (để debug) |
 | `skip` | Bỏ qua bài hát hiện tại |
 | `stop` | Dừng phát nhạc và xóa queue |
 | `test_stream` | Test stream URL cho debug |
 | `voice_debug` | Debug thông tin voice connection |
+
+### Chatbot Grok 4 (xAI)
+
+| Commands | Nội dung |
+| :---------------- | :-------------------------- |
+|`!grok <truy vấn>` | Chế độ mặc định |
+|`!grok deepsearch <truy vấn>` | Tìm dữ liệu web + X (Twitter) |
+|`!grok deepersearch <truy vấn>` | Suy luận chuyên sâu |
+|`!grok think <truy vấn>` | Lập luận từng bước, có hệ thống |
+
+
 
 ### Danh sách lệnh học tập (\!):
 
