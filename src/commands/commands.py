@@ -88,6 +88,9 @@ class EducationalCommands(commands.Cog):
         """Tra cứu tóm tắt từ Wikipedia."""
         try:
             search_url = "https://en.wikipedia.org/w/api.php"
+            headers = {
+                "User-Agent": "Yoombot/1.0 (https://yourwebsite.com; yourcontact@example.com)"  # Thay bằng thông tin liên hệ của bạn
+            }
             search_params = {
                 "action": "query",
                 "list": "search",
@@ -95,7 +98,7 @@ class EducationalCommands(commands.Cog):
                 "format": "json",
                 "origin": "*"
             }
-            search_response = requests.get(search_url, params=search_params, timeout=5)
+            search_response = requests.get(search_url, params=search_params, headers=headers, timeout=5)
             search_response.raise_for_status()
             search_data = search_response.json()
             
@@ -111,7 +114,7 @@ class EducationalCommands(commands.Cog):
                     "format": "json",
                     "origin": "*"
                 }
-                extract_response = requests.get(extract_url, params=extract_params, timeout=5)
+                extract_response = requests.get(extract_url, params=extract_params, headers=headers, timeout=5)
                 extract_response.raise_for_status()
                 extract_data = extract_response.json()
                 
@@ -134,6 +137,5 @@ class EducationalCommands(commands.Cog):
         except Exception as e:
             await ctx.send(f"Lỗi khi tra cứu Wikipedia: {str(e)}")
             logging.error(f"Lỗi khi tra cứu Wikipedia: {str(e)}")
-
 async def setup(bot):
     await bot.add_cog(EducationalCommands(bot))

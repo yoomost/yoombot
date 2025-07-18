@@ -3,7 +3,13 @@ import yt_dlp
 import logging
 import asyncio
 import time
+import sys
+import os
 from database import add_to_queue, get_queue, remove_from_queue
+
+def get_base_path():
+    """Lấy đường dẫn gốc cho môi trường phát triển hoặc đóng gói."""
+    return getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
 
 async def play_song(ctx, query, queues):
     guild_id = str(ctx.guild.id)
@@ -14,16 +20,19 @@ async def play_song(ctx, query, queues):
     is_url = query.startswith(('http://', 'https://', 'www.'))
     
     ydl_opts = {
-        'format': 'bestaudio/best',
-        'cachedir': r'./data/yt_dlp_cache',
+        'format': 'bestaudio[ext=m4a]/bestaudio[ext=mp3]/bestaudio',  # Linh hoạt hơn
+        'cachedir': False,
         'socket_timeout': 30,
         'quiet': True,
         'no_warnings': True,
         'extractaudio': True,
-        'audioformat': 'webm',
+        'audioformat': 'm4a',
         'outtmpl': '%(extractor)s-%(id)s-%(title)s.%(ext)s',
         'force_json': True,
         'extract_flat': False,
+        'cookies': os.path.join(get_base_path(), 'cookies.txt'),
+        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'force_ipv4': True,
     }
     
     if not is_url:
@@ -35,19 +44,20 @@ async def play_song(ctx, query, queues):
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(query, download=False)
+            logging.debug(f"yt-dlp info for query {query}: {info.get('formats', [])}")
             
             if 'entries' in info and info['entries']:
                 entry = info['entries'][0]
                 if entry:
                     url = entry['webpage_url']
                     title = entry.get('title', 'Unknown')
-                    duration = entry.get('duration', 0)
+                    duration = entry.get('duration', 0) or 0
                     uploader = entry.get('uploader', 'Unknown')
                     
                     queues[guild_id].append((url, None, title, duration))
                     add_to_queue(guild_id, url, "", title, duration)
                     
-                    duration_str = f"{duration // 60}:{duration % 60:02d}" if duration > 0 else "Unknown"
+                    duration_str = f"{int(duration // 60)}:{int(duration % 60):02d}" if duration > 0 else "Unknown"
                     await ctx.send(f'🎵 Đã thêm vào queue:\n**{title}**\n⏱️ Thời lượng: {duration_str}\n👤 Kênh: {uploader}')
                     logging.info(f"Added to queue: {title} (duration: {duration}s) for guild {guild_id}")
                 else:
@@ -56,13 +66,13 @@ async def play_song(ctx, query, queues):
             elif 'webpage_url' in info:
                 url = info['webpage_url']
                 title = info.get('title', 'Unknown')
-                duration = info.get('duration', 0)
+                duration = info.get('duration', 0) or 0
                 uploader = info.get('uploader', 'Unknown')
                 
                 queues[guild_id].append((url, None, title, duration))
                 add_to_queue(guild_id, url, "", title, duration)
                 
-                duration_str = f"{duration // 60}:{duration % 60:02d}" if duration > 0 else "Unknown"
+                duration_str = f"{int(duration // 60)}:{int(duration % 60):02d}" if duration > 0 else "Unknown"
                 await ctx.send(f'🎵 Đã thêm vào queue:\n**{title}**\n⏱️ Thời lượng: {duration_str}\n👤 Kênh: {uploader}')
                 logging.info(f"Added to queue: {title} (duration: {duration}s) for guild {guild_id}")
             else:
@@ -81,8 +91,8 @@ async def play_playlist(ctx, playlist_url, queues):
         queues[guild_id] = []
 
     ydl_opts = {
-        'format': 'bestaudio/best',
-        'cachedir': r'./data/yt_dlp_cache',
+        'format': 'bestaudio[ext=m4a]',  # Ưu tiên m4a
+        'cachedir': False,  # Vô hiệu hóa cache
         'socket_timeout': 45,
         'quiet': True,
         'no_warnings': True,
@@ -92,6 +102,9 @@ async def play_playlist(ctx, playlist_url, queues):
         'fragment_retries': 3,
         'skip_unavailable_fragments': True,
         'ignoreerrors': True,
+        'cookies': os.path.join(get_base_path(), 'cookies.txt'),  # Hỗ trợ cookies
+        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'force_ipv4': True,
     }
 
     try:
@@ -99,6 +112,7 @@ async def play_playlist(ctx, playlist_url, queues):
         
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(playlist_url, download=False)
+            logging.debug(f"yt-dlp playlist info for {playlist_url}: {info}")
             
             if 'entries' not in info or not info['entries']:
                 await processing_msg.edit(content="❌ Không phải playlist hợp lệ hoặc playlist trống!")
@@ -180,9 +194,9 @@ async def play_playlist(ctx, playlist_url, queues):
 
 async def get_fresh_audio_url(url):
     ydl_opts = {
-        'format': 'bestaudio[abr<=128]/bestaudio/best[height<=480]',
-        'quiet': True,
-        'no_warnings': True,
+        'format': 'bestaudio[ext=m4a]',  # Ưu tiên m4a
+        'quiet': False,  # Bật verbose logging để gỡ lỗi
+        'verbose': True,
         'socket_timeout': 20,
         'force_json': True,
         'extract_flat': False,
@@ -191,10 +205,15 @@ async def get_fresh_audio_url(url):
         'retries': 2,
         'fragment_retries': 2,
         'skip_unavailable_fragments': True,
+        'cookies': os.path.join(get_base_path(), 'cookies.txt'),
+        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'force_ipv4': True,
+        'cachedir': False,
     }
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
+            logging.debug(f"yt-dlp info for {url}: {info}")
             
             if 'formats' in info:
                 audio_formats = []
@@ -271,7 +290,7 @@ async def play_next(ctx, voice_client, queues, bot, loop_status):
                 '-reconnect_delay_max 5 '
                 '-analyzeduration 2000000 '
                 '-probesize 2000000 '
-                '-loglevel error '
+                '-loglevel warning '
                 '-nostdin'
             ),
             'options': (
@@ -282,7 +301,7 @@ async def play_next(ctx, voice_client, queues, bot, loop_status):
                 '-f s16le '
                 '-bufsize 1024k '
                 '-maxrate 128k'
-            )
+            ),
         }
 
         def after_playing(error):
@@ -308,10 +327,18 @@ async def play_next(ctx, voice_client, queues, bot, loop_status):
             except (IndexError, KeyError) as e:
                 logging.error(f"Error removing song from queue for guild {guild_id}: {e}")
             
-            asyncio.run_coroutine_threadsafe(
-                delayed_play_next(ctx, voice_client, queues, bot, loop_status, 1),
-                bot.loop
-            )
+            # Kiểm tra trạng thái trước khi phát bài tiếp theo
+            if not voice_client.is_playing() and not voice_client.is_paused():
+                asyncio.run_coroutine_threadsafe(
+                    delayed_play_next(ctx, voice_client, queues, bot, loop_status, 1),
+                    bot.loop
+                )
+
+        # Kiểm tra xem voice_client đang phát nhạc hay không
+        if voice_client.is_playing() or voice_client.is_paused():
+            logging.warning(f"Already playing audio in guild {guild_id}, skipping {title}")
+            await ctx.send(f'❌ Lỗi khi phát {title}: Already playing audio.')
+            return
 
         source = discord.FFmpegPCMAudio(audio_url, **ffmpeg_options)
         if not hasattr(source, 'read') or source is None:
@@ -327,7 +354,7 @@ async def play_next(ctx, voice_client, queues, bot, loop_status):
         
         voice_client.play(source, after=after_playing)
         
-        duration_str = f"{duration // 60}:{duration % 60:02d}" if duration > 0 else "Unknown"
+        duration_str = f"{int(duration // 60)}:{int(duration % 60):02d}" if duration > 0 else "Unknown"
         await ctx.send(f'🎵 Đang phát: **{title}** ({duration_str})')
         logging.info(f"Playing: {title} (duration: {duration}s) for guild {guild_id}")
 

@@ -15,7 +15,13 @@ backup/
 
 # Ignore data
 dataset_download.py
+netscape_convert.py
+logger_gui.exe
+logger_gui.spec
+cookies.*
 /data
+*.txt
+dist/
 
 # Ignore cache
 *.db
