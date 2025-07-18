@@ -4,18 +4,16 @@
 
 ## Hướng dẫn cài đặt
 
-1.  Clone repo về máy và cài đặt `requirements.txt`.
-2.  Tạo file `.env` bao gồm:
-      * `BOT_TOKEN`, `GROQ_API_KEY` (cho chatbot từ Groq API)
-      * `XAI_API_KEY` (cho chatbot Grok 4)
-      * `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET`, `REDDIT_USER_AGENT` (từ việc [tạo reddit app](https://www.reddit.com/prefs/apps))
-      * `PIXIV_REFRESH_TOKEN` (phải ghi, nhưng có thể để trống)
-      * ID channel discord: `MENTAL_CHANNEL_ID`, `GENERAL_CHANNEL_ID`, ` GROK4_CHANNEL_ID`, `NEWS_CHANNEL_ID`, `IMAGE_CHANNEL_ID`, `WELCOME_CHANNEL_ID` , `WIKI_CHANNEL_ID` , `EDUCATIONAL_CHANNEL_ID`.
-        Thay các ID trên bằng ID thực tế của các kênh trong server Discord của bạn.
-3.  Lưu các file PDF cần thiết vào `data/documents/mental_counseling/` để chạy chatbot tư vấn tâm lý.
+1.  Clone repo, tạo venv và cài đặt `requirements.txt`.
+2.  Tạo file `.env` như `env_example.md`.
+3.  Lưu các file PDF, JSON và JSONL cần thiết vào `data/documents/mental_counseling/` để chạy chatbot tư vấn tâm lý.
 4.  Chạy file `main.py`.
 5.  Khi chạy lần đầu, terminal sẽ yêu cầu đăng nhập vào pixiv. Hãy làm theo các bước [như sau](https://gist.github.com/ZipFile/c9ebedb224406f4f11845ab700124362) để hoàn tất việc đăng nhập. Key sẽ được tự động lưu vào `config.py` và những lần chạy sau sẽ không cần đăng nhập lại.
-
+6. Chạy lệnh sau để tạo file spec và app:
+      ```
+      pyinstaller --clean --noconfirm --onefile --noconsole --icon=icon.ico --add-data "data;data" --add-data "src;src" --add-data ".env;." --add-data "main.py;." --add-data "config.py;." --add-data "database.py;." --add-data "cookies.txt;." --add-data "icon.ico;." --hidden-import "yt_dlp" --hidden-import "requests" --hidden-import "pystray" --hidden-import "PIL" logger_gui.py
+      ```
+7. Khởi chạy app: `dist\logger_gui.py`
 
 ## Chức năng (WIP)
 
@@ -173,13 +171,14 @@ Các lệnh học tập được thiết kế để hoạt động trong các k�
 ```
 yoombot/
 ├── data/
-│   ├── documents/          # Chứa file PDF, JSON và JSONL cho mô hình RAG
+│   ├── documents/              # Chứa file PDF, JSON và JSONL cho mô hình RAG
 │   │   └── mental_counseling/
 │   ├── bot.log 
 │   ├── rag_index/ 
 │   ├── chat_history.db
 │   ├── queues.db
 │   └── yt_dlp_cache/
+├── dist/                       # Sau khi chạy app sẽ xuất hiện
 ├── src/
 │   ├── music/
 │   │   ├── __init__.py
@@ -204,5 +203,7 @@ yoombot/
 ├── main.py 
 ├── config.py 
 ├── database.py 
+├── logger_gui.py 
+├── icon.ico 
 └── .env
 ```
