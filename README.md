@@ -2,6 +2,8 @@
 
 Một chiếc bot Discord đa chức năng kết hợp trò chuyện AI, phát nhạc và đăng nội dung tự động. Bot cũng hỗ trợ tư vấn sức khỏe tâm thần thông qua AI dựa trên tài liệu, các truy vấn toán học và khoa học, cùng các công cụ giáo dục như Khan Academy và tìm kiếm Wikipedia.
 
+For EN users: [README_en.md](README_en.md)
+
 ## Hướng dẫn cài đặt
 
 1.  Clone repo, tạo venv và cài đặt `requirements.txt`.
