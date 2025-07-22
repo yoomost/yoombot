@@ -41,7 +41,7 @@ required_vars = [
     'REDDIT_CLIENT_ID', 'REDDIT_CLIENT_SECRET', 'REDDIT_USER_AGENT',
     'MENTAL_CHANNEL_ID', 'GENERAL_CHANNEL_ID', 'WELCOME_CHANNEL_ID',
     'WIKI_CHANNEL_ID', 'EDUCATIONAL_CHANNEL_ID', 'NEWS_CHANNEL_ID',
-    'IMAGE_CHANNEL_ID', 'GROK4_CHANNEL_ID', 'ADMIN_ROLE_ID'
+    'IMAGE_CHANNEL_ID', 'GROK4_CHANNEL_ID', 'ADMIN_ROLE_ID', 'GEMINI_API_KEY' # Thêm GEMINI_API_KEY
 ]
 
 missing_vars = [var for var in required_vars if os.getenv(var) is None]
@@ -57,6 +57,7 @@ PIXIV_REFRESH_TOKEN = os.getenv('PIXIV_REFRESH_TOKEN')
 REDDIT_CLIENT_ID = os.getenv('REDDIT_CLIENT_ID')
 REDDIT_CLIENT_SECRET = os.getenv('REDDIT_CLIENT_SECRET')
 REDDIT_USER_AGENT = os.getenv('REDDIT_USER_AGENT')
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY') # Lấy GEMINI_API_KEY
 
 try:
     MENTAL_CHANNEL_ID = int(os.getenv('MENTAL_CHANNEL_ID'))
@@ -68,6 +69,7 @@ try:
     IMAGE_CHANNEL_ID = int(os.getenv('IMAGE_CHANNEL_ID'))
     GROK4_CHANNEL_ID = int(os.getenv('GROK4_CHANNEL_ID'))
     ADMIN_ROLE_ID = int(os.getenv('ADMIN_ROLE_ID'))
+    GEMINI_CHANNEL_ID = int(os.getenv('GEMINI_CHANNEL_ID')) # Thêm GEMINI_CHANNEL_ID
 except (TypeError, ValueError) as e:
     logging.error(f"Error converting environment variables to integers: {str(e)}")
     raise ValueError("MENTAL_CHANNEL_ID, GENERAL_CHANNEL_ID, WELCOME_CHANNEL_ID, IMAGE_CHANNEL_ID, GROK4_CHANNEL_ID, ADMIN_ROLE_ID and NEWS_CHANNEL_ID must be valid numbers")

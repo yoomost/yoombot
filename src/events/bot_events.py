@@ -2,9 +2,9 @@ import discord
 from discord.ext import commands
 import logging
 import asyncio
-from config import MENTAL_CHANNEL_ID, GENERAL_CHANNEL_ID, WELCOME_CHANNEL_ID, NEWS_CHANNEL_ID, GROK4_CHANNEL_ID
+from config import MENTAL_CHANNEL_ID, GENERAL_CHANNEL_ID, WELCOME_CHANNEL_ID, NEWS_CHANNEL_ID, GROK4_CHANNEL_ID, GEMINI_CHANNEL_ID # Import GEMINI_CHANNEL_ID
 from database import get_history, add_message, get_queue, is_message_exists
-from src.utils.helpers import get_groq_response, get_xai_response, mental_rag
+from src.utils.helpers import get_groq_response, get_xai_response, get_gemini_response, mental_rag # Import get_gemini_response
 from src.utils.news import news_task
 
 def setup_events(bot, queues, loop_status):
@@ -46,8 +46,18 @@ def setup_events(bot, queues, loop_status):
         logging.info(f"Received message from {message.author.name} (ID: {message.author.id}) in channel/thread {message.channel.id}")
 
         parent_channel_id = message.channel.parent_id if isinstance(message.channel, discord.Thread) else message.channel.id
-        if parent_channel_id in [MENTAL_CHANNEL_ID, GENERAL_CHANNEL_ID, GROK4_CHANNEL_ID]:
-            db_type = 'mental' if parent_channel_id == MENTAL_CHANNEL_ID else 'general' if parent_channel_id == GENERAL_CHANNEL_ID else 'grok4'
+        # Thêm GEMINI_CHANNEL_ID vào danh sách các kênh được xử lý
+        if parent_channel_id in [MENTAL_CHANNEL_ID, GENERAL_CHANNEL_ID, GROK4_CHANNEL_ID, GEMINI_CHANNEL_ID]:
+            db_type = None
+            if parent_channel_id == MENTAL_CHANNEL_ID:
+                db_type = 'mental'
+            elif parent_channel_id == GENERAL_CHANNEL_ID:
+                db_type = 'general'
+            elif parent_channel_id == GROK4_CHANNEL_ID:
+                db_type = 'grok4'
+            elif parent_channel_id == GEMINI_CHANNEL_ID:
+                db_type = 'gemini' # Đặt db_type là 'gemini'
+
             thread_name = f"{message.author.name}-private-{db_type}-chat"
             logging.info(f"Processing message for {db_type} channel, user: {message.author.name}")
 
@@ -62,9 +72,17 @@ def setup_events(bot, queues, loop_status):
                     query = parts[2] if len(parts) > 2 else ""
                 else:
                     query = message.content[6:].strip() if len(parts) > 1 else ""
-
-            if not query:
-                await message.channel.send("❌ Vui lòng cung cấp nội dung truy vấn.")
+            elif db_type == 'gemini' and message.content.startswith('!gemini'): # Xử lý lệnh !gemini
+                query = message.content[8:].strip() if len(message.content) > 8 else ""
+            elif db_type == 'general' and message.content.startswith('!general'):
+                query = message.content[9:].strip() if len(message.content) > 9 else ""
+            elif db_type == 'mental' and message.content.startswith('!mental'):
+                query = message.content[8:].strip() if len(message.content) > 8 else ""
+            
+            # Nếu người dùng gửi tin nhắn không bắt đầu bằng lệnh cụ thể,
+            # nhưng kênh đó là kênh chat riêng, thì vẫn xử lý.
+            if not query and not isinstance(message.channel, discord.Thread):
+                await message.channel.send("❌ Vui lòng cung cấp nội dung truy vấn hoặc sử dụng lệnh phù hợp với kênh (ví dụ: `!gemini <nội dung>`).")
                 return
 
             if isinstance(message.channel, discord.Thread):
@@ -113,6 +131,8 @@ def setup_events(bot, queues, loop_status):
                 add_message(thread.id, message.id, "user", query, db_type=db_type, mode=mode, user_id=str(message.author.id))
                 if db_type == 'grok4':
                     response = await get_xai_response(thread.id, query, user_id=str(message.author.id), mode=mode)
+                elif db_type == 'gemini': # Gọi hàm Gemini mới
+                    response = await get_gemini_response(thread.id, query, db_type=db_type)
                 else:
                     rag_instance = mental_rag if db_type == 'mental' else None
                     response = await get_groq_response(thread.id, query, rag_instance, db_type=db_type)
