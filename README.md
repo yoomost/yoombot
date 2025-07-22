@@ -24,7 +24,7 @@ For EN users: [README_en.md](README_en.md)
 3.  Tự động đăng báo mới từ VnExpress mỗi 15 phút.
 4.  Tự động đăng hình Recommended của tài khoản đăng nhập pixiv, có thể thay đổi theo artist hay tag.
 5.  Tự động đăng hình sắp xếp theo Hot trên subreddit you-know-which, có thể chọn nguồn từ user bất kì trong subreddit.
-6.  Chatbot AI, bao gồm chatbot tư vấn tâm lý RAG, chatbot tổng hợp từ Groq API, và chatbot Grok 4.
+6.  Chatbot AI, bao gồm chatbot tư vấn tâm lý RAG, chatbot tổng hợp từ Groq API, chatbot Gemini 2.5 Pro cho tác vụ nặng, và chatbot Grok 4 để truy vấn thời gian thực.
 7.  Hỗ trợ tra cứu tài liệu học tập và giải bài tập.
 
 
