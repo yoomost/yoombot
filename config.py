@@ -37,11 +37,11 @@ logging.debug(f"Environment variables after loading .env: {dict(os.environ)}")
 
 # Load configuration from environment variables
 required_vars = [
-    'BOT_TOKEN', 'GROQ_API_KEY', 'XAI_API_KEY', 'PIXIV_REFRESH_TOKEN',
+    'BOT_TOKEN', 'GROQ_API_KEY', 'XAI_API_KEY', 'OPENAI_API_KEY', 'PIXIV_REFRESH_TOKEN',
     'REDDIT_CLIENT_ID', 'REDDIT_CLIENT_SECRET', 'REDDIT_USER_AGENT',
     'MENTAL_CHANNEL_ID', 'GENERAL_CHANNEL_ID', 'WELCOME_CHANNEL_ID',
     'WIKI_CHANNEL_ID', 'EDUCATIONAL_CHANNEL_ID', 'NEWS_CHANNEL_ID',
-    'IMAGE_CHANNEL_ID', 'GROK4_CHANNEL_ID', 'ADMIN_ROLE_ID', 'GEMINI_API_KEY' # Thêm GEMINI_API_KEY
+    'IMAGE_CHANNEL_ID', 'GROK4_CHANNEL_ID', 'GPT_CHANNEL_ID', 'ADMIN_ROLE_ID', 'GEMINI_API_KEY'
 ]
 
 missing_vars = [var for var in required_vars if os.getenv(var) is None]
@@ -52,12 +52,13 @@ if missing_vars:
 
 BOT_TOKEN = os.getenv('BOT_TOKEN')
 GROQ_API_KEY = os.getenv('GROQ_API_KEY')
-XAI_API_KEY = os.getenv('XAI_API_KEY')  # API key for Grok 4
+XAI_API_KEY = os.getenv('XAI_API_KEY')
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')  # API key for GPT-4.1
 PIXIV_REFRESH_TOKEN = os.getenv('PIXIV_REFRESH_TOKEN')
 REDDIT_CLIENT_ID = os.getenv('REDDIT_CLIENT_ID')
 REDDIT_CLIENT_SECRET = os.getenv('REDDIT_CLIENT_SECRET')
 REDDIT_USER_AGENT = os.getenv('REDDIT_USER_AGENT')
-GEMINI_API_KEY = os.getenv('GEMINI_API_KEY') # Lấy GEMINI_API_KEY
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 
 try:
     MENTAL_CHANNEL_ID = int(os.getenv('MENTAL_CHANNEL_ID'))
@@ -68,8 +69,9 @@ try:
     NEWS_CHANNEL_ID = int(os.getenv('NEWS_CHANNEL_ID'))
     IMAGE_CHANNEL_ID = int(os.getenv('IMAGE_CHANNEL_ID'))
     GROK4_CHANNEL_ID = int(os.getenv('GROK4_CHANNEL_ID'))
+    GPT_CHANNEL_ID = int(os.getenv('GPT_CHANNEL_ID'))  # Channel for GPT-4.1
     ADMIN_ROLE_ID = int(os.getenv('ADMIN_ROLE_ID'))
-    GEMINI_CHANNEL_ID = int(os.getenv('GEMINI_CHANNEL_ID')) # Thêm GEMINI_CHANNEL_ID
+    GEMINI_CHANNEL_ID = int(os.getenv('GEMINI_CHANNEL_ID'))
 except (TypeError, ValueError) as e:
     logging.error(f"Error converting environment variables to integers: {str(e)}")
-    raise ValueError("MENTAL_CHANNEL_ID, GENERAL_CHANNEL_ID, WELCOME_CHANNEL_ID, IMAGE_CHANNEL_ID, GROK4_CHANNEL_ID, ADMIN_ROLE_ID and NEWS_CHANNEL_ID must be valid numbers")
+    raise ValueError("Channel IDs and ADMIN_ROLE_ID must be valid numbers")

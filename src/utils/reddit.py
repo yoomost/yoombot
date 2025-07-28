@@ -87,7 +87,9 @@ class RedditCog(commands.Cog):
                         embed.set_footer(text=f"Đăng lúc: {datetime.now(pytz.timezone('Asia/Ho_Chi_Minh')).strftime('%H:%M %d/%m/%Y')}")
 
                         await image_channel.send(embed=embed, file=file)
-                        add_reddit_post(post.id, post.title, subreddit_name)
+                        # Convert post.created_utc to ISO datetime string
+                        posted_at = datetime.utcfromtimestamp(post.created_utc).isoformat()
+                        add_reddit_post(post.id, subreddit_name, post.title, posted_at)
                         sent_count += 1
                     else:
                         logging.error(f"Không tải được ảnh từ {img_url}, mã lỗi: {resp.status}")

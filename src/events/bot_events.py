@@ -2,9 +2,11 @@ import discord
 from discord.ext import commands
 import logging
 import asyncio
-from config import MENTAL_CHANNEL_ID, GENERAL_CHANNEL_ID, WELCOME_CHANNEL_ID, NEWS_CHANNEL_ID, GROK4_CHANNEL_ID, GEMINI_CHANNEL_ID # Import GEMINI_CHANNEL_ID
-from database import get_history, add_message, get_queue, is_message_exists
-from src.utils.helpers import get_groq_response, get_xai_response, get_gemini_response, mental_rag # Import get_gemini_response
+import json
+from datetime import datetime
+from config import MENTAL_CHANNEL_ID, GENERAL_CHANNEL_ID, WELCOME_CHANNEL_ID, NEWS_CHANNEL_ID, GROK4_CHANNEL_ID, GPT_CHANNEL_ID, GEMINI_CHANNEL_ID
+from database import get_history, add_message, is_message_exists, get_gpt_batch_job, get_queue, update_gpt_batch_job
+from src.utils.helpers import get_groq_response, get_xai_response, get_gpt_response, get_gemini_response, mental_rag, check_gpt_batch_jobs
 from src.utils.news import news_task
 
 def setup_events(bot, queues, loop_status):
@@ -27,6 +29,7 @@ def setup_events(bot, queues, loop_status):
         logging.info("Bot started, queues loaded, and slash commands synced")
         bot.loop.create_task(news_task(bot))
         bot.loop.create_task(cleanup_handled_messages(bot))
+        bot.loop.create_task(check_gpt_batch_jobs(bot))  # Start checking GPT-4.1 batch jobs
         logging.info("Started background tasks")
 
     @bot.event
@@ -46,8 +49,7 @@ def setup_events(bot, queues, loop_status):
         logging.info(f"Received message from {message.author.name} (ID: {message.author.id}) in channel/thread {message.channel.id}")
 
         parent_channel_id = message.channel.parent_id if isinstance(message.channel, discord.Thread) else message.channel.id
-        # Thêm GEMINI_CHANNEL_ID vào danh sách các kênh được xử lý
-        if parent_channel_id in [MENTAL_CHANNEL_ID, GENERAL_CHANNEL_ID, GROK4_CHANNEL_ID, GEMINI_CHANNEL_ID]:
+        if parent_channel_id in [MENTAL_CHANNEL_ID, GENERAL_CHANNEL_ID, GROK4_CHANNEL_ID, GPT_CHANNEL_ID, GEMINI_CHANNEL_ID]:
             db_type = None
             if parent_channel_id == MENTAL_CHANNEL_ID:
                 db_type = 'mental'
@@ -55,8 +57,10 @@ def setup_events(bot, queues, loop_status):
                 db_type = 'general'
             elif parent_channel_id == GROK4_CHANNEL_ID:
                 db_type = 'grok4'
+            elif parent_channel_id == GPT_CHANNEL_ID:
+                db_type = 'gpt'
             elif parent_channel_id == GEMINI_CHANNEL_ID:
-                db_type = 'gemini' # Đặt db_type là 'gemini'
+                db_type = 'gemini'
 
             thread_name = f"{message.author.name}-private-{db_type}-chat"
             logging.info(f"Processing message for {db_type} channel, user: {message.author.name}")
@@ -72,17 +76,64 @@ def setup_events(bot, queues, loop_status):
                     query = parts[2] if len(parts) > 2 else ""
                 else:
                     query = message.content[6:].strip() if len(parts) > 1 else ""
-            elif db_type == 'gemini' and message.content.startswith('!gemini'): # Xử lý lệnh !gemini
+            elif db_type == 'gpt' and message.content.startswith('!gpt'):
+                if message.content.startswith('!gpt retrieve'):
+                    parts = message.content.split(' ', 2)
+                    if len(parts) < 3:
+                        await message.channel.send("❌ Vui lòng cung cấp batch ID: `!gpt retrieve <batch_id>`")
+                        return
+                    batch_id = parts[2].strip()
+                    job = get_gpt_batch_job(batch_id)
+                    if not job:
+                        await message.channel.send(f"❌ Batch ID {batch_id} không tồn tại.")
+                        return
+                    if job['status'] == 'pending':
+                        await message.channel.send(f"Batch job {batch_id} vẫn đang xử lý. Vui lòng kiểm tra lại sau.")
+                        return
+                    elif job['status'] == 'completed' or job['status'] == 'processed':
+                        response = job['response_data']
+                        try:
+                            response_data = json.loads(response)
+                            api_response = response_data.get("choices", [{}])[0].get("message", {}).get("content", "")
+                            if api_response:
+                                chunks = [api_response[i:i+1900] for i in range(0, len(api_response), 1900)]
+                                for i, chunk in enumerate(chunks):
+                                    prefix = f"**Batch ID: {batch_id}**\n" if i == 0 else ""
+                                    await message.channel.send(f"{prefix}{chunk}")
+                                logging.info(f"Retrieved and sent GPT-4.1 response for batch {batch_id} to thread {message.channel.id}")
+                            else:
+                                await message.channel.send(f"Error: No content in response for batch {batch_id}")
+                        except json.JSONDecodeError as e:
+                            logging.error(f"Error parsing retrieved GPT-4.1 response for batch {batch_id}: {str(e)}")
+                            await message.channel.send(f"Error: Failed to parse response for batch {batch_id}")
+                        if job['status'] == 'completed':
+                            update_gpt_batch_job(batch_id, "processed", response, datetime.now().isoformat())
+                        return
+                    else:
+                        await message.channel.send(f"Batch job {batch_id} {job['status']}. Không thể lấy phản hồi.")
+                        return
+                else:
+                    query = message.content[5:].strip() if len(message.content) > 5 else ""
+                    if not query:
+                        await message.channel.send("❌ Vui lòng cung cấp nội dung truy vấn sau `!gpt`.")
+                        return
+                    file_content = None
+                    if message.attachments:
+                        for attachment in message.attachments:
+                            if attachment.filename.endswith('.txt') or attachment.filename.endswith('.json'):
+                                file_content = await attachment.read()
+                                file_content = file_content.decode('utf-8')
+                                logging.info(f"Read file content from attachment {attachment.filename} for thread {thread.id}")
+                    response = await get_gpt_response(thread.id, query, user_id=str(message.author.id), db_type=db_type, file_content=file_content)
+            elif db_type == 'gemini' and message.content.startswith('!gemini'):
                 query = message.content[8:].strip() if len(message.content) > 8 else ""
             elif db_type == 'general' and message.content.startswith('!general'):
                 query = message.content[9:].strip() if len(message.content) > 9 else ""
             elif db_type == 'mental' and message.content.startswith('!mental'):
                 query = message.content[8:].strip() if len(message.content) > 8 else ""
             
-            # Nếu người dùng gửi tin nhắn không bắt đầu bằng lệnh cụ thể,
-            # nhưng kênh đó là kênh chat riêng, thì vẫn xử lý.
             if not query and not isinstance(message.channel, discord.Thread):
-                await message.channel.send("❌ Vui lòng cung cấp nội dung truy vấn hoặc sử dụng lệnh phù hợp với kênh (ví dụ: `!gemini <nội dung>`).")
+                await message.channel.send("❌ Vui lòng cung cấp nội dung truy vấn hoặc sử dụng lệnh phù hợp với kênh (ví dụ: `!gpt <nội dung>`).")
                 return
 
             if isinstance(message.channel, discord.Thread):
@@ -128,10 +179,12 @@ def setup_events(bot, queues, loop_status):
 
             logging.info(f"Processing message in thread {thread.id} for {db_type}, content: {query[:50]}...")
             try:
-                add_message(thread.id, message.id, "user", query, db_type=db_type, mode=mode, user_id=str(message.author.id))
+                add_message(thread_id=thread.id, message_id=message.id, role="user", content=query, db_type=db_type, mode=mode, user_id=str(message.author.id), batch_id=None)
                 if db_type == 'grok4':
                     response = await get_xai_response(thread.id, query, user_id=str(message.author.id), mode=mode)
-                elif db_type == 'gemini': # Gọi hàm Gemini mới
+                elif db_type == 'gpt':
+                    response = await get_gpt_response(thread.id, query, user_id=str(message.author.id), db_type=db_type)
+                elif db_type == 'gemini':
                     response = await get_gemini_response(thread.id, query, db_type=db_type)
                 else:
                     rag_instance = mental_rag if db_type == 'mental' else None
@@ -140,7 +193,7 @@ def setup_events(bot, queues, loop_status):
 
                 chunks = [response[i:i+1900] for i in range(0, len(response), 1900)]
                 for i, chunk in enumerate(chunks):
-                    prefix = f"**Mode: {mode or 'default'}**\n" if i == 0 else ""
+                    prefix = f"**Mode: {mode or 'default'}**\n" if i == 0 and mode else ""
                     await thread.send(f"{prefix}{chunk}")
                 logging.info(f"Sent response in {len(chunks)} chunks to thread {thread.id}")
 

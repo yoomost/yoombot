@@ -59,35 +59,36 @@ async def fetch_and_post_news(bot):
         logging.warning("Không tìm thấy bài báo nào trong RSS feed của VnExpress.")
         return False
 
-    # Kiểm tra/tạo bảng news và sửa đổi cấu trúc nếu cần
+    # Kiểm tra/tạo bảng news_articles và sửa đổi cấu trúc nếu cần
     try:
         conn = get_db_connection("news.db")
         cursor = conn.cursor()
         # Kiểm tra cấu trúc bảng
-        cursor.execute("PRAGMA table_info(news)")
+        cursor.execute("PRAGMA table_info(news_articles)")
         columns = [col[1] for col in cursor.fetchall()]
         if 'article_id' not in columns or 'title' not in columns or 'published' not in columns:
-            logging.warning("Cấu trúc bảng news không đúng, tạo lại bảng")
-            cursor.execute("DROP TABLE IF EXISTS news")
+            logging.warning("Cấu trúc bảng news_articles không đúng, tạo lại bảng")
+            cursor.execute("DROP TABLE IF EXISTS news_articles")
             cursor.execute("""
-                CREATE TABLE news (
-                    article_id TEXT PRIMARY KEY,
+                CREATE TABLE news_articles (
+                    id INTEGER PRIMARY KEY,
+                    article_id TEXT UNIQUE,
                     title TEXT,
-                    published TEXT
+                    published DATETIME
                 )
             """)
             conn.commit()
-            logging.debug("Đã tạo lại bảng news với cấu trúc đúng")
+            logging.debug("Đã tạo lại bảng news_articles với cấu trúc đúng")
         else:
-            logging.debug("Cấu trúc bảng news đã đúng")
+            logging.debug("Cấu trúc bảng news_articles đã đúng")
         
         # Xóa bài cũ hơn 24 giờ
-        cutoff_time = (datetime.now(pytz.timezone("Asia/Ho_Chi_Minh")) - timedelta(hours=24)).strftime("%Y-%m-%d %H:%M:%S")
-        cursor.execute("DELETE FROM news WHERE published < ?", (cutoff_time,))
+        cutoff_time = (datetime.now(pytz.timezone("Asia/Ho_Chi_Minh")) - timedelta(hours=24)).isoformat()
+        cursor.execute("DELETE FROM news_articles WHERE published < ?", (cutoff_time,))
         conn.commit()
-        logging.debug(f"Đã kiểm tra/tạo bảng news và xóa {cursor.rowcount} bài cũ")
+        logging.debug(f"Đã kiểm tra/tạo bảng news_articles và xóa {cursor.rowcount} bài cũ")
     except Exception as e:
-        logging.error(f"Lỗi khi tạo bảng news hoặc xóa bài cũ: {str(e)}", exc_info=True)
+        logging.error(f"Lỗi khi tạo bảng news_articles hoặc xóa bài cũ: {str(e)}", exc_info=True)
         if cursor:
             cursor.close()
         if conn:
@@ -118,13 +119,16 @@ async def fetch_and_post_news(bot):
                     try:
                         pub_date_utc = datetime.strptime(pub_date_str, "%a, %d %b %Y %H:%M:%S %z")
                         pub_date_vn = pub_date_utc.astimezone(vn_timezone)
-                        published = pub_date_vn.strftime("%H:%M %d/%m/%Y")
+                        published = pub_date_vn.isoformat()  # Use ISO format for DATETIME
+                        display_published = pub_date_vn.strftime("%H:%M %d/%m/%Y")
                     except (ValueError, TypeError):
                         logging.warning(f"Không thể phân tích pubDate: {pub_date_str}, sử dụng giờ hiện tại")
-                        published = datetime.now(vn_timezone).strftime("%H:%M %d/%m/%Y")
+                        published = datetime.now(vn_timezone).isoformat()
+                        display_published = datetime.now(vn_timezone).strftime("%H:%M %d/%m/%Y")
                 else:
                     logging.warning("Không có pubDate, sử dụng giờ hiện tại")
-                    published = datetime.now(vn_timezone).strftime("%H:%M %d/%m/%Y")
+                    published = datetime.now(vn_timezone).isoformat()
+                    display_published = datetime.now(vn_timezone).strftime("%H:%M %d/%m/%Y")
 
                 thumbnail_url = ""
                 if description and "src=" in description:
@@ -143,7 +147,7 @@ async def fetch_and_post_news(bot):
                 )
                 embed.add_field(name="Nguồn", value="VnExpress", inline=True)
                 embed.set_author(name="VnExpress", icon_url="https://s1.vnecdn.net/vnexpress/restruct/i/v92/logos/32x32.png")
-                embed.set_footer(text=f"Đăng lúc: {published}", icon_url="https://s1.vnecdn.net/vnexpress/restruct/i/v92/logos/120x120.png")
+                embed.set_footer(text=f"Đăng lúc: {display_published}", icon_url="https://s1.vnecdn.net/vnexpress/restruct/i/v92/logos/120x120.png")
                 if thumbnail_url:
                     embed.set_thumbnail(url=thumbnail_url)
 
@@ -175,6 +179,11 @@ async def fetch_and_post_news(bot):
 async def news_task(bot):
     """Tác vụ nền kiểm tra tin mới mỗi 15 phút."""
     logging.info("Khởi động tác vụ tin tức nền")
+    # Kiểm tra kênh ngay khi bắt đầu
+    channel = bot.get_channel(NEWS_CHANNEL_ID)
+    if not channel:
+        logging.error(f"Kênh tin tức {NEWS_CHANNEL_ID} không tồn tại, bỏ qua tác vụ tin tức")
+        return
     while True:
         try:
             success = await fetch_and_post_news(bot)
@@ -191,4 +200,5 @@ async def news_task(bot):
 
 async def setup(bot):
     """Thiết lập tác vụ tin tức."""
+    logging.debug("Thiết lập tác vụ tin tức")
     bot.loop.create_task(news_task(bot))

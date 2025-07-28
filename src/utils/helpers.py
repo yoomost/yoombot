@@ -1,11 +1,14 @@
 import discord
 import aiohttp
+from aiohttp import FormData
 import json
 import logging
 import asyncio
-from config import GROQ_API_KEY, XAI_API_KEY, GEMINI_API_KEY
-from database import get_history, add_message
+from config import GROQ_API_KEY, XAI_API_KEY, OPENAI_API_KEY, GEMINI_API_KEY
+from database import get_history, add_message, add_gpt_batch_job, update_gpt_batch_job, get_gpt_batch_job, get_pending_gpt_batch_jobs
 from src.utils.rag import RAG
+import uuid
+from datetime import datetime
 
 mental_rag = RAG(embed_model="all-MiniLM-L6-v2", index_path="./data/rag_index/mental", doc_dir="./data/documents/mental_counseling")
 
@@ -190,7 +193,7 @@ async def get_xai_response(thread_id, message, user_id, mode=None, retries=2):
                                 except json.JSONDecodeError as e:
                                     logging.error(f"Chunk decode error for thread {thread_id}: {str(e)}, chunk: {chunk}")
                             if api_response:
-                                add_message(thread_id, None, "assistant", api_response, db_type='grok4', mode=mode, user_id=str(message.author.id))
+                                add_message(thread_id, None, "assistant", api_response, db_type='grok4', mode=mode, user_id=user_id)
                                 logging.info(f"Generated response for thread {thread_id}: {api_response[:100]}...")
                                 return api_response
                             else:
@@ -256,17 +259,13 @@ async def get_gemini_response(thread_id, message, db_type='gemini', retries=2):
                     async with session.post(url, headers=headers, json=data) as response:
                         response.raise_for_status()
                         api_response = ""
-                        buffer = "" # Khởi tạo bộ đệm để tích lũy JSON bị phân mảnh
+                        buffer = ""
                         async for line_bytes in response.content:
                             line = line_bytes.decode('utf-8').strip()
-                            if not line: # Bỏ qua các dòng trống
+                            if not line:
                                 continue
-                            
-                            # Ưu tiên thử phân tích cú pháp dòng hiện tại.
-                            # Nếu đây là một khối JSON hoàn chỉnh, hãy xử lý nó.
                             try:
                                 chunk_data_list = json.loads(line)
-                                # Nếu thành công, xử lý khối này.
                                 for chunk_data in chunk_data_list:
                                     if "candidates" in chunk_data and chunk_data["candidates"]:
                                         candidate = chunk_data["candidates"][0]
@@ -280,15 +279,12 @@ async def get_gemini_response(thread_id, message, db_type='gemini', retries=2):
                                             logging.warning(f"Gemini chunk candidate missing 'content' or 'parts' for thread {thread_id}: {candidate}")
                                     else:
                                         logging.warning(f"Gemini chunk missing 'candidates' or candidates empty for thread {thread_id}: {chunk_data}")
-                                buffer = "" # Xóa bộ đệm vì dòng này là một khối độc lập hoàn chỉnh
+                                buffer = ""
                                 logging.debug(f"Successfully parsed standalone line for thread {thread_id}.")
                             except json.JSONDecodeError:
-                                # Nếu `line` không phải là một JSON hoàn chỉnh, nó phải là một mảnh hoặc một phần của JSON lớn hơn.
-                                # Thêm nó vào bộ đệm và thử phân tích cú pháp bộ đệm đã tích lũy.
                                 buffer += line
                                 try:
                                     chunk_data_list = json.loads(buffer)
-                                    # Nếu thành công, điều này có nghĩa là bộ đệm đã tích lũy đã tạo thành một JSON hoàn chỉnh
                                     for chunk_data in chunk_data_list:
                                         if "candidates" in chunk_data and chunk_data["candidates"]:
                                             candidate = chunk_data["candidates"][0]
@@ -302,19 +298,17 @@ async def get_gemini_response(thread_id, message, db_type='gemini', retries=2):
                                                 logging.warning(f"Gemini chunk candidate missing 'content' or 'parts' for thread {thread_id}: {candidate}")
                                         else:
                                             logging.warning(f"Gemini chunk missing 'candidates' or candidates empty for thread {thread_id}: {chunk_data}")
-                                    buffer = "" # Xóa bộ đệm sau khi phân tích cú pháp thành công
+                                    buffer = ""
                                     logging.debug(f"Successfully parsed accumulated buffer for thread {thread_id}.")
                                 except json.JSONDecodeError as e:
-                                    # Nếu vẫn không phải là JSON hoàn chỉnh, tiếp tục tích lũy trong bộ đệm.
                                     if "Extra data" not in str(e) and "Expecting value" not in str(e) and "Expecting property name" not in str(e) and "Expecting ',' delimiter" not in str(e):
                                         logging.warning(f"Buffer is not complete JSON yet or malformed for thread {thread_id}: '{buffer[:50]}...'. Error: {e}")
                                     logging.debug(f"Still accumulating buffer for thread {thread_id}: '{buffer[:50]}...'")
-                                    pass # Tiếp tục tích lũy
+                                    pass
                                 except Exception as e:
                                     logging.error(f"Error processing accumulated Gemini chunk for thread {thread_id}: {str(e)}, raw buffer: '{buffer[:100]}...'")
-                                    buffer = "" # Xóa bộ đệm khi có lỗi không mong muốn
-                        
-                        if buffer: # Xử lý bất kỳ dữ liệu còn lại nào trong bộ đệm sau khi vòng lặp kết thúc
+                                    buffer = ""
+                        if buffer:
                             try:
                                 chunk_data_list = json.loads(buffer)
                                 for chunk_data in chunk_data_list:
@@ -328,7 +322,6 @@ async def get_gemini_response(thread_id, message, db_type='gemini', retries=2):
                                 logging.warning(f"Remaining buffer is not complete JSON at end of stream for thread {thread_id}: '{buffer[:50]}...'. Error: {e}")
                             except Exception as e:
                                 logging.error(f"Error processing remaining Gemini buffer for thread {thread_id}: {str(e)}, raw buffer: '{buffer[:100]}...'")
-                        
                         if api_response:
                             add_message(thread_id, None, "assistant", api_response, db_type)
                             logging.info(f"Generated response for thread {thread_id}: {api_response[:100]}...")
@@ -372,3 +365,163 @@ async def get_gemini_response(thread_id, message, db_type='gemini', retries=2):
     except Exception as e:
         logging.error(f"Unexpected error in get_gemini_response for thread {thread_id}: {str(e)}, type: {type(e).__name__}")
         return f"Error: Unexpected issue processing request for thread {thread_id}: {str(e)}"
+
+async def get_gpt_response(thread_id, message, user_id, db_type='gpt', retries=2, file_content=None):
+    logging.info(f"Starting get_gpt_response for thread {thread_id}, user: {user_id}, db_type: {db_type}, message: {message[:50]}...")
+    try:
+        history = get_history(thread_id, limit=20, db_type=db_type, user_id=user_id)
+        logging.info(f"Retrieved {len(history)} messages from history for thread {thread_id}, user {user_id}")
+        full_history = [
+            {"role": "system", "content": "You are a helpful assistant powered by GPT-4.1, created by OpenAI. Provide accurate, detailed, and coherent responses based on the provided context and maintain conversation history."}
+        ] + history[-5:] + [{"role": "user", "content": message + (f"\n\nFile content: {file_content}" if file_content else "")}]
+        
+        # Generate a unique batch ID
+        batch_id = str(uuid.uuid4())
+        request_data = json.dumps({
+            "custom_id": f"request-{batch_id}",
+            "method": "POST",
+            "url": "/v1/chat/completions",
+            "body": {
+                "model": "gpt-4o",
+                "messages": full_history,
+                "max_tokens": 8192,
+                "temperature": 0.7
+            }
+        }, ensure_ascii=False) + "\n"  # Ensure UTF-8 encoding and JSONL format
+        
+        # Store the batch job in the database
+        add_gpt_batch_job(batch_id, thread_id, user_id, request_data)
+        
+        # Prepare batch job for OpenAI Batch API
+        batch_request = {
+            "input_file_id": f"file-{batch_id}",
+            "endpoint": "/v1/chat/completions",
+            "completion_window": "24h",
+            "metadata": {"thread_id": thread_id, "user_id": user_id}
+        }
+        
+        headers = {
+            "Authorization": f"Bearer {OPENAI_API_KEY}",
+            "Content-Type": "application/json"
+        }
+        timeout = aiohttp.ClientTimeout(total=None, sock_connect=60, sock_read=600)
+        
+        async with aiohttp.ClientSession(timeout=timeout) as session:
+            # Step 1: Upload request data as a file
+            try:
+                upload_url = "https://api.openai.com/v1/files"
+                form = FormData()
+                form.add_field("file", request_data.encode('utf-8'), filename=f"batch-{batch_id}.jsonl")  # Use text/plain implicitly
+                form.add_field("purpose", "batch")
+                async with session.post(upload_url, headers=headers, data=form) as response:
+                    response.raise_for_status()
+                    upload_data = await response.json()
+                    input_file_id = upload_data.get("id")
+                    logging.info(f"Uploaded batch request file {input_file_id} for thread {thread_id}")
+            except aiohttp.ClientResponseError as e:
+                logging.error(f"Error uploading batch request file for thread {thread_id}: {str(e)}, status: {e.status}, message: {e.message}, request_data: {request_data[:100]}...")
+                update_gpt_batch_job(batch_id, "failed")
+                return f"Error: Failed to upload batch request for thread {thread_id}: {str(e)}"
+            except Exception as e:
+                logging.error(f"Error uploading batch request file for thread {thread_id}: {str(e)}")
+                update_gpt_batch_job(batch_id, "failed")
+                return f"Error: Failed to upload batch request for thread {thread_id}: {str(e)}"
+            
+            # Step 2: Submit batch job
+            try:
+                batch_url = "https://api.openai.com/v1/batches"
+                batch_request["input_file_id"] = input_file_id
+                async with session.post(batch_url, headers=headers, json=batch_request) as response:
+                    response.raise_for_status()
+                    batch_data = await response.json()
+                    batch_id = batch_data.get("id")
+                    update_gpt_batch_job(batch_id, "submitted")
+                    logging.info(f"Submitted batch job {batch_id} for thread {thread_id}")
+                    return f"Batch job submitted with ID: {batch_id}. Response will be sent to this thread when ready, or use `!gpt retrieve {batch_id}` in any thread."
+            except aiohttp.ClientResponseError as e:
+                logging.error(f"Error submitting batch job for thread {thread_id}: {str(e)}, status: {e.status}, message: {e.message}")
+                update_gpt_batch_job(batch_id, "failed")
+                return f"Error: Failed to submit batch job for thread {thread_id}: {str(e)}"
+            except Exception as e:
+                logging.error(f"Error submitting batch job for thread {thread_id}: {str(e)}")
+                update_gpt_batch_job(batch_id, "failed")
+                return f"Error: Failed to submit batch job for thread {thread_id}: {str(e)}"
+    except Exception as e:
+        logging.error(f"Unexpected error in get_gpt_response for thread {thread_id}: {str(e)}, type: {type(e).__name__}")
+        return f"Error: Unexpected issue processing request for thread {thread_id}: {str(e)}"
+    
+async def check_gpt_batch_jobs(bot, interval=300):
+    """Periodically check for completed GPT-4.1 batch jobs."""
+    while True:
+        try:
+            pending_jobs = get_pending_gpt_batch_jobs()
+            logging.info(f"Checking {len(pending_jobs)} pending GPT-4.1 batch jobs")
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {OPENAI_API_KEY}"
+            }
+            timeout = aiohttp.ClientTimeout(total=None, sock_connect=60, sock_read=600)
+            async with aiohttp.ClientSession(timeout=timeout) as session:
+                for job in pending_jobs:
+                    batch_id = job['batch_id']
+                    thread_id = job['thread_id']
+                    user_id = job['user_id']
+                    try:
+                        # Check batch job status
+                        url = f"https://api.openai.com/v1/batches/{batch_id}"
+                        async with session.get(url, headers=headers) as response:
+                            response.raise_for_status()
+                            batch_data = await response.json()
+                            status = batch_data.get("status")
+                            if status in ["completed", "failed", "expired", "cancelled"]:
+                                update_gpt_batch_job(batch_id, status, batch_data.get("response_data"), datetime.now().isoformat())
+                                if status == "completed":
+                                    # Retrieve response from output file
+                                    output_file_id = batch_data.get("output_file_id")
+                                    if output_file_id:
+                                        file_url = f"https://api.openai.com/v1/files/{output_file_id}/content"
+                                        async with session.get(file_url, headers=headers) as file_response:
+                                            file_response.raise_for_status()
+                                            response_text = await file_response.text()
+                                            try:
+                                                response_data = json.loads(response_text)
+                                                api_response = response_data.get("choices", [{}])[0].get("message", {}).get("content", "")
+                                                if api_response:
+                                                    add_message(thread_id, None, "assistant", api_response, db_type='gpt', user_id=user_id, batch_id=batch_id)
+                                                    thread = bot.get_channel(int(thread_id))
+                                                    if thread:
+                                                        chunks = [api_response[i:i+1900] for i in range(0, len(api_response), 1900)]
+                                                        for i, chunk in enumerate(chunks):
+                                                            prefix = f"**Batch ID: {batch_id}**\n" if i == 0 else ""
+                                                            await thread.send(f"{prefix}{chunk}")
+                                                        logging.info(f"Sent GPT-4.1 response for batch {batch_id} to thread {thread_id}")
+                                                    else:
+                                                        logging.error(f"Thread {thread_id} not found for batch {batch_id}")
+                                                else:
+                                                    logging.error(f"No content in GPT-4.1 response for batch {batch_id}")
+                                                    thread = bot.get_channel(int(thread_id))
+                                                    if thread:
+                                                        await thread.send(f"Error: No content received for batch {batch_id}")
+                                            except json.JSONDecodeError as e:
+                                                logging.error(f"Error parsing GPT-4.1 batch response for batch {batch_id}: {str(e)}")
+                                                thread = bot.get_channel(int(thread_id))
+                                                if thread:
+                                                    await thread.send(f"Error: Failed to parse batch response for {batch_id}")
+                                        update_gpt_batch_job(batch_id, "processed", response_text, datetime.now().isoformat())
+                                    else:
+                                        logging.error(f"No output file ID for completed batch {batch_id}")
+                                        thread = bot.get_channel(int(thread_id))
+                                        if thread:
+                                            await thread.send(f"Error: No output file for batch {batch_id}")
+                                        update_gpt_batch_job(batch_id, "failed")
+                                elif status in ["failed", "expired", "cancelled"]:
+                                    thread = bot.get_channel(int(thread_id))
+                                    if thread:
+                                        await thread.send(f"Batch job {batch_id} {status}. Please try again.")
+                                    logging.info(f"Batch job {batch_id} marked as {status}")
+                    except Exception as e:
+                        logging.error(f"Error checking GPT-4.1 batch job {batch_id}: {str(e)}")
+            await asyncio.sleep(interval)
+        except Exception as e:
+            logging.error(f"Error in check_gpt_batch_jobs: {str(e)}")
+            await asyncio.sleep(interval)
